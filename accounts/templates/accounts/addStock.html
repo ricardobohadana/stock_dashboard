@@ -1,0 +1,31 @@
+{% extends './home.html' %}
+
+{% block content %}
+
+  <div class="row">
+    <form method="POST" class="col s12">
+      {% csrf_token %}
+      <div class="row">
+        <div class="container">
+          <div class="input-field col s12">
+            {{ form.symbol }}
+            {{ form.symbol.errors }}
+            <div class="match-list"></div>
+            <label for="search">Abreviação</label>
+            <span class="helper-text" data-error="wrong" data-success="right">Digite a abreviação da sua ação aqui e clique em adicionar para vê-la em seu portfólio</span>
+            <div class="center text-white">
+              <button type="submit" value="" class="waves-effect waves-light btn">Adicionar<i class="fas fa-submit"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags %}  <script>alert("{{ message }}")</script> {% endif %}
+      {% endfor %}
+
+    {% endif %}
+{% endblock content %}
+

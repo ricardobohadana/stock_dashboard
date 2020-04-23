@@ -1,0 +1,75 @@
+{% extends './home.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col s6">
+			<canvas id="stockChart" width="400" height="200"></canvas>
+	</div>
+	
+	<div class="col s1"></div>
+	<div class="col s4">
+		<table class="striped centered">
+			<thead>
+					<tr>
+							<th>Data</th>
+							<th>Valor</th>
+							<th>Variação</th>
+					</tr>
+			</thead>
+			<tbody>
+				{% for item in all_lists reversed %}
+					<tr>
+						<td>{{ item.0 }}</td>
+						<td class="">R$ {{ item.1 }}</td>
+						{% if item.2 > 0 %}
+							<td class="green-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-up"></i></td>
+						{% elif item.2 < 0%}
+							<td class="red-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-down"></i></td>
+						{% else %}
+							<td class="amber-text text-accent-4">{{ item.2 }}%<i class="fas fa-minus"></i></td>
+						{% endif %}
+					</tr>
+				{% endfor %}	
+			</tbody>
+		</table>
+		<div class="col s1">
+		</div>
+	</div>
+</div>
+{{ labs|json_script:"labs" }}
+{{ datas|json_script:"datas" }}
+{{ obj.name|json_script:"name" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script>
+
+// pegando as variáveis do views.py get_historicalData()
+var labs = JSON.parse(document.getElementById('labs').textContent);
+var datas = JSON.parse(document.getElementById('datas').textContent);
+var name = JSON.parse(document.getElementById('name').textContent);
+
+
+
+// criando o gráfico
+var ctx = document.getElementById('stockChart').getContext('2d');
+var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: labs,
+        datasets: [{
+            label: name,
+            backgroundColor: 'rgb(162,162,162)',
+            borderColor: 'rgb(51, 51, 51)',
+						pointBackgroundColor: 'rgb(162,162,162)',	
+            data: datas
+        }]
+    },
+
+    // Configuration options go here
+    options: {}
+});
+</script>
+{% endblock content %}
+
