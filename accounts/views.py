@@ -8,14 +8,19 @@ from .utilities import *
 # homepage
 def homeView(request):
     st = get_diff_stocks()
-    lucro = 0
+    atual = 0
+    antigo = 0
     for item in st:
-        lucro = lucro + (item.price - (item.price/((item.change_percent/100)+1)))
+        atual = atual + item.price
+        antigo = antigo + (item.price/((item.change_percent/100)+1))
+        lucro = ((atual/antigo)-1)*100
     lucro = round(lucro, 2)
+    obj = get_ibovespaData()
 
     context = {
         'stocks': st,
         'lucro': lucro,
+        'obj': obj,
     }
 
     return render(request, 'accounts/home.html', context)
@@ -103,3 +108,12 @@ def detailedstockView(request, pk):
         'stocks': st,
     }
     return render(request, 'accounts/detailedStock.html', context)
+
+
+def removestockView(request, pk):
+    stock = Stock.objects.get(pk=pk)
+    stocks = Stock.objects.filter(symbol=stock.symbol)
+    for item in stocks:
+        item.delete()
+    messages.success(request, 'Ativo removido do portfólio com sucesso!')
+    return redirect('homepage')

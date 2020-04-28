@@ -32,9 +32,9 @@ def get_Stock_Data(symbol):
     try:
         vet = sp.find('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}).find_all('span')
         price = float(vet[0].text)
-        change_percentage = vet[1].text.split(' ')[1][1:5]
+        change_percentage = vet[1].text.split(' ')[1][1:6]
     except ValueError:
-        change_percentage = vet[1].text.split(' ')[1][2:6]
+        change_percentage = vet[1].text.split(' ')[1][2:7]
     except AttributeError:
         return 1
     # updated = vet[2].text[11:17]
@@ -60,13 +60,13 @@ def create_Stock_object(symbol, update):
                     symbol = symbol,
                     name = jsobj['name'],
                     price = jsobj['price'],
-                    # updated = jsobj['updated'], 
+                    # updated = jsobj['updated'],
                     change_percent = jsobj['change_percent'],
                 )
             return obj
         else:
             return print('é duplicata')
-        
+
 
 
 # CHECA SE UM OBJETO NA DATABASE JÁ EXISTE PARA EVITAR ADICIONÁ-LO MAIS DE UMA VEZ
@@ -99,7 +99,6 @@ def get_diff_stocks():
 
 # ADQUIRE OS DADOS HISTÓRICOS DE 3 MESES
 def get_historicalData(symbol):
-    symbol = 'MGLU3'
     url = 'https://finance.yahoo.com/quote/'+symbol.upper()
     last3months = '.SA/history?p='+symbol.upper() + '.SA'
     r = requests.get(url+last3months)
@@ -116,7 +115,7 @@ def get_historicalData(symbol):
         except ValueError:
             labs.pop()
 
-            
+
 
 
     check_2_remove(labs)
@@ -131,3 +130,30 @@ def check_2_remove(vet):
     for item in vet:
         if vet.count(item) > 1:
             vet.remove(item)
+
+
+
+# PEGA OS ÍNDICES DA IBOVESPA
+def get_ibovespaData():
+    url = 'https://finance.yahoo.com/quote/%5EBVSP?p=^BVSP&.tsrc=fin-srch'
+    r = requests.get(url)
+    if r.status_code != 200:
+        print('Status code error')
+        return 1
+    sp = BeautifulSoup(r.text, "lxml")
+    try:
+        vet = sp.find('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}).find_all('span')
+        price = float((vet[0].text.replace(',','')))
+        change_points = vet[1].text.split(' ')[0].replace(',','')
+        change_percentage = vet[1].text.split(' ')[1][1:6]
+    except ValueError:
+        change_percentage = vet[1].text.split(' ')[1][2:6]
+    except AttributeError:
+        return 1
+    # updated = vet[2].text[11:17]
+    jsobj = {
+        'price': price,
+        'change_percent': change_percentage,
+        'change_points': change_points,
+    }
+    return jsobj

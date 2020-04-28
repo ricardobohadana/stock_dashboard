@@ -2,12 +2,11 @@
 
 {% block content %}
 <div class="row">
-	<div class="col s6">
+	<div class="col s12 m6">
 			<canvas id="stockChart" width="400" height="200"></canvas>
 	</div>
-	
-	<div class="col s1"></div>
-	<div class="col s4">
+	<div class="col s1 m1"></div>
+	<div class="col s10 m4">
 		<table class="striped centered">
 			<thead>
 					<tr>
@@ -29,10 +28,10 @@
 							<td class="amber-text text-accent-4">{{ item.2 }}%<i class="fas fa-minus"></i></td>
 						{% endif %}
 					</tr>
-				{% endfor %}	
+				{% endfor %}
 			</tbody>
 		</table>
-		<div class="col s1">
+		<div class="col s1 m1">
 		</div>
 	</div>
 </div>
@@ -62,7 +61,7 @@ var chart = new Chart(ctx, {
             label: name,
             backgroundColor: 'rgb(162,162,162)',
             borderColor: 'rgb(51, 51, 51)',
-						pointBackgroundColor: 'rgb(162,162,162)',	
+						pointBackgroundColor: 'rgb(162,162,162)',
             data: datas
         }]
     },

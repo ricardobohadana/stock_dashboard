@@ -13,7 +13,8 @@
 <body>
   <nav>
 		<div class="nav-wrapper grey darken-3">
-			<a href="#" class="brand-logo center">Portfólio de ações</a>
+			<a href="#" class="brand-logo center">Portfólio</a>
+			<a href="#" data-target="slide-out" class="sidenav-trigger"><i class="fas fa-bars"></i></a>
 			<ul id="nav-mobile" class="left hide-on-med-and-down">
 				<li><a href=""></a></li>
 				<li><a href=""></a></li>
@@ -37,7 +38,7 @@
 			<ul class="collection with-header">
 					{% for stock in stocks %}
 						<li class="collection-item">
-							<div><a class="waves-effect black-text" href="{% url 'detailedstockpage' pk=stock.pk %}">{{ stock.symbol }}</a><a href="" class="secondary-content"><i class="far fa-window-close"></i></a></div>
+							<div><a class="waves-effect black-text" href="{% url 'detailedstockpage' pk=stock.pk %}">{{ stock.symbol }}</a><a href="{% url 'removestockpage' pk=stock.pk %}" class="secondary-content"><i class="far fa-window-close"></i></a></div>
 						</li>
 					{% endfor %}
 			</ul>
@@ -48,53 +49,69 @@
 	</ul>
 	{% block content %}
 	<div class="row">
-		<div class="col s2">
-			<h4 class="center">Rendimento atual <br></h4>
+		<div class="col s12 m2">
+			<h4 class="center">Rendimento atual<br></h4>
 			{% if lucro > 0 %}
-				<h3 class="green-text center">R$ {{ lucro}} <i class="fas fa-long-arrow-alt-up"></i></h3>
+				<h3 class="green-text center">{{ lucro }} %<i class="fas fa-long-arrow-alt-up"></i></h3>
 			{% elif lucro < 0 %}
-				<h3 class="red-text center">R$ {{ lucro}} <i class="fas fa-long-arrow-alt-down"></i></h3>
+				<h3 class="red-text center">{{ lucro }} %<i class="fas fa-long-arrow-alt-down"></i></h3>
 			{% else %}
-				<h3 class="amber-text text-accent-4 center"> {{ lucro}} <i class="fas fa-minus"></i></h3>
+				<h3 class="amber-text text-accent-4 center">{{ lucro }} %<i class="fas fa-minus"></i></h3>
 			{% endif %}
 		</div>
-		<div class="col s8">
-			<table class="striped">
-				<thead>
+		<div class="col s12 m8">
+			<table class="striped responsive-table">
+				<thead class="">
 					<tr>
-						<th></th>
-						<th>Nome</th>
-						<th>Símbolo</th>
-						<th>Preço</th>
-						<th>Variação</th>
-						<th>Data de Atualização</th>
-						<th><a class="waves-effect waves-light btn" href="{% url 'updatestockspage' %}">Atualizar Tudo<i class="fas fa-submit"></i></a></th>
+						<th class="center">Gráficos</th>
+						<th >Nome</th>
+						<th class="center">Símbolo</th>
+						<th class="center">Preço</th>
+						<th class="center">Variação</th>
+						<th class="center">Data de Atualização</th>
+						<th class="center"><a class="waves-effect waves-light btn" href="{% url 'updatestockspage' %}">Atualizar Tudo<i class="fas fa-submit"></i></a></th>
 					</tr>
 				</thead>
 				<tbody>
 					{% for stock in stocks %}
 					<tr>
-						<td><a class="btn-floating btn-large waves-effect waves-light red" href="{% url 'detailedstockpage' pk=stock.pk %}"><i class="fas fa-chart-line"></i></a> </td>
+						<td class="center"><a class="" href="{% url 'detailedstockpage' pk=stock.pk %}"><i class="fas fa-chart-line"></i></a> </td>
 						<td>{{ stock.name }}</td>
-						<td class="">{{ stock.symbol }}</td>
-						<td class="">R$ {{ stock.price }}</td>
+						<td class="center">{{ stock.symbol }}</td>
+						<td class="center">R$ {{ stock.price }}</td>
 						{% if stock.change_percent > 0 %}
-							<td class="green-text"> {{ stock.change_percent}}% <i class="fas fa-long-arrow-alt-up"></i></td>
+							<td class="green-text center"> {{ stock.change_percent}}% <i class="fas fa-long-arrow-alt-up"></i></td>
 						{% elif stock.change_percent < 0 %}
-							<td class="red-text"> {{ stock.change_percent}}% <i class="fas fa-long-arrow-alt-down"></i></td>
+							<td class="red-text center"> {{ stock.change_percent}}% <i class="fas fa-long-arrow-alt-down"></i></td>
 						{% else %}
-							<td class="amber-text text-accent-4"> {{ stock.change_percent}}% <i class="fas fa-minus"></i></td>
+							<td class="amber-text text-accent-4 center"> {{ stock.change_percent}}% <i class="fas fa-minus"></i></td>
 						{% endif %}
-						<td>{{ stock.updated }} </td>
-						<td><a class="waves-effect waves-light btn" href="{% url 'updatestockpage' pk=stock.pk %}">Atualizar<i class="fas fa-submit"></i></a></td>
+						<td class="center">{{ stock.updated }} </td>
+						<td class="center"><a class="waves-effect waves-light btn" href="{% url 'updatestockpage' pk=stock.pk %}">Atualizar<i class="fas fa-submit"></i></a></td>
 					</tr>
 					{% endfor %}
 				</tbody>
 			</table>
 		</div>
-		<div class="col s2">
+		<div class="col s12 m2">
+		    <h4 class="center">Ibovespa<br></h4>
+			{% if lucro > 0 %}
+				<h3 class="green-text center">{{ obj.price }}<i class="fas fa-long-arrow-alt-up"></i></h3>
+				<h3 class="green-text center">{{ obj.change_percent }} %<i class="fas fa-long-arrow-alt-up"></i></h3>
+			{% elif lucro < 0 %}
+				<h3 class="red-text center"> {{ obj.price }}<i class="fas fa-long-arrow-alt-down"></i></h3>
+				<h3 class="red-text center"> {{ obj.change_percent }} %<i class="fas fa-long-arrow-alt-down"></i></h3>
+			{% else %}
+				<h3 class="amber-text text-accent-4 center"> {{ obj.price }}<i class="fas fa-minus"></i></h3>
+				<h3 class="amber-text text-accent-4 center"> {{ obj.change_percent }} %<i class="fas fa-minus"></i></h3>
+			{% endif %}
 		</div>
 	</div>
+	{% if messages %}
+      {% for message in messages %}
+        {% if message.tags %}  <script>alert("{{ message }}")</script> {% endif %}
+      {% endfor %}
+    {% endif %}
 	{% endblock content %}
 
 </body>
@@ -103,6 +120,10 @@
 var elem = document.querySelector('.sidenav');
 var instance = new M.Sidenav(elem);
 document.addEventListener('DOMContentLoaded', function () {
+    var elems = document.querySelectorAll('.sidenav');
+    var instances = M.Sidenav.init(elems, options);
+});
+document.addEventListener('DOMContentLoaded', function() {
     var elems = document.querySelectorAll('.sidenav');
     var instances = M.Sidenav.init(elems, options);
 });
@@ -145,4 +166,4 @@ for (item in value){
 //{% comment %} BBAS3, JBSS3, MGLU3, SBSP3, VALE3, ITUB4, ELET6, CESP6, LREN3, SAPR11, PCAR3, HYPE3, UGPA3 {% endcomment %}
 //{% comment %} PCAR3, CESP6, SAPR11 {% endcomment %}
 </script>
-</html>	
+</html>
