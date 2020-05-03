@@ -2,73 +2,192 @@
 
 {% block content %}
 <div class="row">
-	<div class="col s12 m6">
-			<canvas id="stockChart" width="400" height="200"></canvas>
+	<div class="col s12 m7">
+		<div class="row">
+			<div class="col m4"></div>
+			<div class="input-field col s12 m3">
+				<select>
+					<option value="7">1 Semana</option>
+					<option value="14">2 Semanas</option>
+					<option value="30">1 Mês</option>
+					<option value="90" selected>3 Meses</option>
+					<option value="180">6 Meses</option>
+					<option value="365">1 Ano</option>
+				</select>
+				<label>Selecione o intervalo</label>
+			</div>
+			<div class="col m2"></div>
+		</div>
+		<div class="row">
+			<canvas id="stockChart" width="500" height="300"></canvas>
+		</div>
+		<div class="row">
+			<table class="striped centered">
+				<thead>
+					<tr>
+						<th>Indicador Responsável</th>
+						<th>Previsão</th>
+						<th>Variação</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for value in prev %}
+				<tr>
+					<td>Média Móvel de {{ value.2 }} Dias</td>
+					<td>{{ value.0 }}</td>
+					{% if value.0 > price %}
+					<td class="green-text">{{ value.1 }}% <i class="fas fa-long-arrow-alt-up"></i></td>
+
+					{% elif value.0 < price %}
+					<td class="red-text">{{ value.1 }}% <i class="fas fa-long-arrow-alt-down"></i></td>
+					{% else %}
+					<td class="amber-text text-accent-4">{{ value.1 }}%<i class="fas fa-minus"></i></td>
+					{% endif %}
+				</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
 	</div>
-	<div class="col s1 m1"></div>
-	<div class="col s10 m4">
+	<div class="col s10 m5">
 		<table class="striped centered">
 			<thead>
-					<tr>
-							<th>Data</th>
-							<th>Valor</th>
-							<th>Variação</th>
-					</tr>
+				<tr>
+					<th>Data</th>
+					<th>Valor</th>
+					<th>Variação</th>
+				</tr>
 			</thead>
 			<tbody>
 				{% for item in all_lists reversed %}
-					<tr>
-						<td>{{ item.0 }}</td>
-						<td class="">R$ {{ item.1 }}</td>
-						{% if item.2 > 0 %}
-							<td class="green-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-up"></i></td>
-						{% elif item.2 < 0%}
-							<td class="red-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-down"></i></td>
-						{% else %}
-							<td class="amber-text text-accent-4">{{ item.2 }}%<i class="fas fa-minus"></i></td>
-						{% endif %}
-					</tr>
+				<tr>
+					<td>{{ item.1 }}</td>
+					<td class="">R$ {{ item.0 }}</td>
+					{% if item.2 > 0 %}
+					<td class="green-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-up"></i></td>
+					{% elif item.2 < 0%}
+					<td class="red-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-down"></i></td>
+					{% else %}
+					<td class="amber-text text-accent-4">{{ item.2 }}%<i class="fas fa-minus"></i></td>
+					{% endif %}
+				</tr>
 				{% endfor %}
 			</tbody>
 		</table>
-		<div class="col s1 m1">
-		</div>
 	</div>
 </div>
+</div>
 {{ labs|json_script:"labs" }}
-{{ datas|json_script:"datas" }}
-{{ obj.name|json_script:"name" }}
+{{ stock|json_script:"stock" }}
+{{ sma15|json_script:"sma15" }}
+{{ sma30|json_script:"sma30" }}
+{{ sma60|json_script:"sma60" }}
+{{ obj.symbol|json_script:"symbol" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
 
-// pegando as variáveis do views.py get_historicalData()
-var labs = JSON.parse(document.getElementById('labs').textContent);
-var datas = JSON.parse(document.getElementById('datas').textContent);
-var name = JSON.parse(document.getElementById('name').textContent);
+
+	// pegando as variáveis do views.py get_historicalData()
+	var labs = JSON.parse(document.getElementById('labs').textContent);
+	var stock = JSON.parse(document.getElementById('stock').textContent);
+	var sma15 = JSON.parse(document.getElementById('sma15').textContent);
+	var sma30 = JSON.parse(document.getElementById('sma30').textContent);
+	var sma60 = JSON.parse(document.getElementById('sma60').textContent);
+	var symbol = JSON.parse(document.getElementById('symbol').textContent);
 
 
 
-// criando o gráfico
-var ctx = document.getElementById('stockChart').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'line',
+	// ajax call without jquery
 
-    // The data for our dataset
-    data: {
-        labels: labs,
-        datasets: [{
-            label: name,
-            backgroundColor: 'rgb(162,162,162)',
-            borderColor: 'rgb(51, 51, 51)',
-						pointBackgroundColor: 'rgb(162,162,162)',
-            data: datas
-        }]
-    },
 
-    // Configuration options go here
-    options: {}
-});
+
+
+
+	// ajax call with jquery
+	var csrftoken = 'DiMQPHNgfnMx7OZ7lKcIVsRB9POvw4iXJuSeaPFBueeZv9pcPzXj3wMTjldUHThW';
+
+	$.ajaxSetup({
+		beforeSend: function (xhr, settings) {
+			xhr.setRequestHeader("X-CSRFToken", csrftoken);
+		}
+	});
+
+	document.querySelector('select').addEventListener('change', (e) => {
+		$.ajax({
+			url: "{% url 'detailedstockpage' pk=obj.pk %}",
+			type: "POST",
+			data: { value: e.target.value },
+			success: function (json) {
+				chart.data.labels = json.labs;
+				chart.data.datasets[3].data = json.stock;
+				chart.data.datasets[0].data = json.sma15;
+				chart.data.datasets[1].data = json.sma30;
+				chart.data.datasets[2].data = json.sma60;
+				chart.update();
+			},
+			fail: function (data) {
+				console.log("FAIL");
+			},
+		});
+	});
+
+
+
+
+	// Inicializando o elemnto <select>
+	document.addEventListener('DOMContentLoaded', function () {
+		var elemens = document.querySelectorAll('select');
+		var instances = M.FormSelect.init(elemens);
+	});
+
+	// criando o gráfico
+	var ctx = document.getElementById('stockChart').getContext('2d');
+	var chart = new Chart(ctx, {
+		// The type of chart we want to create
+		type: 'line',
+
+		// The data for our dataset
+		data: {
+			labels: labs,
+			datasets: [
+				{
+					label: 'SMA 14 days',
+					borderColor: 'rgb(187,93,10)',
+					backgroundColor: 'rgb(187,93,10)',
+					pointBackgroundColor: 'rgb(187,93,10)',
+					pointHoverRadius: 5,
+					data: sma15,
+					fill: false,
+				},
+				{
+					label: 'SMA 30 days',
+					borderColor: 'rgb(228, 203, 116)',
+					backgroundColor: 'rgb(228, 203, 116)',
+					pointBackgroundColor: 'rgb(228, 203, 116)',
+					data: sma30,
+					fill: false,
+				},
+				{
+					label: 'SMA 7 days',
+					borderColor: 'rgb(143, 249, 236)',
+					backgroundColor: 'rgb(143, 249, 236)',
+					pointBackgroundColor: 'rgb(143, 249, 236)',
+					data: sma60,
+					fill: false,
+				},
+				{
+					label: symbol,
+					backgroundColor: 'rgb(162,162,162)',
+					borderColor: 'rgb(51, 51, 51)',
+					pointBackgroundColor: 'rgb(162,162,162)',
+					data: stock
+				},
+			]
+		},
+
+		// Configuration options go here
+		options: {}
+	});
 </script>
 {% endblock content %}
-
