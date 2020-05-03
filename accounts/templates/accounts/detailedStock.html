@@ -6,6 +6,7 @@
 		<div class="row">
 			<div class="col m4"></div>
 			<div class="input-field col s12 m3">
+			{% csrf_token %}
 				<select>
 					<option value="7">1 Semana</option>
 					<option value="14">2 Semanas</option>
@@ -105,7 +106,7 @@
 
 
 	// ajax call with jquery
-	var csrftoken = 'DiMQPHNgfnMx7OZ7lKcIVsRB9POvw4iXJuSeaPFBueeZv9pcPzXj3wMTjldUHThW';
+	var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
 
 	$.ajaxSetup({
 		beforeSend: function (xhr, settings) {
