@@ -23,10 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '(sw2il33$&e&mklnj4#635h%=4_quoz!auaa7ypwt+ztw5k*g='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
-    'cacobm.pythonanywhere.com'
+    # 'cacobm.pythonanywhere.com'
 ]
 
 
@@ -107,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC -3'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
