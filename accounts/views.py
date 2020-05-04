@@ -1,15 +1,14 @@
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.http import HttpResponse
-from .models import Stock
-from .forms import StockForm
+from .models import Stock, Wallet
+from .forms import StockForm, WalletForm
 from django.contrib import messages
 from .utilities import *
 import simplejson as json
 
-
-# homepage
-def homeView(request):
-    st = get_diff_stocks()
+def newhomeView(request):
+    st = Stock.objects.all()
     atual = 0
     antigo = 0
     lucro = 0
@@ -25,12 +24,33 @@ def homeView(request):
         'lucro': lucro,
         'obj': obj,
     }
+    return render(request, 'accounts/home2.html', context)
 
-    return render(request, 'accounts/home.html', context)
+
+def walletView(request):
+    stocks = Stock.objects.all()
+    form = WalletForm()
+    wallet = Wallet.objects.all()
+    if not updateWallet():
+        messages.warning('Algo errado com o update')
+    if request.method == 'POST':
+        form = WalletForm(request.POST)
+        if form.is_valid():
+            nform = form.save(commit=False)
+            nform.money_amount = nform.investment
+            nform.save()
+            messages.success(request, 'Papéis adicionadas a sua carteira')
+            return redirect('walletpage')
+    context = {
+        'wallet': wallet,
+        'form': form,
+        'stocks':stocks,
+    }
+    return render(request, 'accounts/wallet.html', context)
 
 
 def newstockView(request):
-    st = get_diff_stocks()
+    stocks = Stock.objects.all()
     form = StockForm()
     if request.method == 'POST':
         form = StockForm(request.POST)
@@ -38,9 +58,9 @@ def newstockView(request):
             nform = form.save(commit=False)
             jsobj = get_Stock_Data(nform.symbol)
             if jsobj != 1:
-                if not check_duplicate(jsobj, nform.symbol, False):
-                    messages.warning(request, 'Ops, este ativo já está cadastrado em seu portfólio')
-                    return redirect('addstockpage')
+                # if not check_duplicate(jsobj, nform.symbol, False):
+                #     messages.warning(request, 'Ops, este ativo já está cadastrado em seu portfólio')
+                #     return redirect('addstockpage')
                 nform.symbol = nform.symbol.upper()
                 # nform.name = jsobj['name']
                 nform.price = jsobj['price']
@@ -52,38 +72,32 @@ def newstockView(request):
             else:
                 messages.warning(request, 'Ops, verifique se a abreviação do ativo foi digitada corretamente.')
         else:
-            messages.warning(request, 'Ops, há algum erro')
+            messages.warning(request, 'Ops, este ativo já está em seu portfólio!')
     context = {
         'form': form,
-        'stocks': st,
-
+        'stocks':stocks
     }
     return render(request, 'accounts/addStock.html', context)
 
-# UPDATE SPECIFIC STOCK
-def updatestockView(request, pk):
-    stock = Stock.objects.get(pk=pk)
-    obj = create_Stock_object(stock.symbol, True)
-    obj.save()
-    stock.delete()
-    return redirect('homepage')
-
-
 # UPDATE ALL STOCKS
 def updatestocksView(request):
-    start = time.process_time()
-    stock = get_diff_stocks()
+    # start = time.process_time()
+    stock = Stock.objects.all()
     for item in stock:
-        obj = create_Stock_object(item.symbol, True)
-        obj.save()
-        item.delete()
-    print('Processamento de updatesstocsView: ' + str(time.process_time() - start))
+        obj = get_Stock_Data(item.symbol)
+        db_query = Stock.objects.filter(symbol=item.symbol)
+        db_query.update(
+            price=obj['price'],
+            change_percent=obj['change_percent'],
+            updated=timezone.now()
+        )
+    # print('Processamento de updatesstocsView: ' + str(time.process_time() - start))
     messages.success(request, 'Seu portfólio foi atualizado com sucesso')
     return redirect('homepage')
 
 
 def detailedstockView(request, pk):
-    st = get_diff_stocks()
+    stocks = Stock.objects.all()
     obj = Stock.objects.get(pk=pk)
     if request.is_ajax():
         print("IS AJAX")
@@ -115,6 +129,7 @@ def detailedstockView(request, pk):
         all_lists.append([datas[0][i], labs[i], variance[i]])
     price = datas[0][-1]
     context = {
+        'stocks': stocks,
         'price': price,
         'prev': prev,
         'stock': datas[0],
@@ -125,23 +140,14 @@ def detailedstockView(request, pk):
         'obj': obj,
         'variance': variance,
         'all_lists': all_lists,
-        'stocks': st,
     }
     return render(request, 'accounts/detailedStock.html', context)
 
 
 def removestockView(request, pk):
     stock = Stock.objects.get(pk=pk)
-    stocks = Stock.objects.filter(symbol=stock.symbol)
-    for item in stocks:
-        item.delete()
+    stock.delete()
     messages.success(request, 'Ativo removido do portfólio com sucesso!')
     return redirect('homepage')
 
-
-def graphRange(request, pk):
-    if request.is_ajax():
-        # get_historicalData()
-        pass
-    return
         

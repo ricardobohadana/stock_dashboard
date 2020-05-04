@@ -1,0 +1,68 @@
+{% extends './home.html' %}
+{% block content %}
+
+
+<div class="container">
+    <div class="card-panel z-depth-3">
+        <div class="card-content">
+            <table class="striped centered">
+                <thead>
+                    <tr>
+                        <th>Ativo</th>
+                        <th>Quantidade</th>
+                        <th>Investimento Inicial</th>
+                        <th>Preço Atual</th>
+                        <th>Capital Atualizado</th>
+                        <th>Ganho percentual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in wallet %}
+                    <tr>
+                        <td>{{item.stock.symbol}}</td>
+                        <td>{{item.stock_amount}}</td>
+                        <td>R$ {{item.investment}}</td>
+                        <td>R$ {{item.stock.price}}</td>
+                        <td>R$ {{item.money_amount}}</td>
+                        <td>ganho %</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="card-panel z-depth-5">
+        <div class="card-content">
+            <div class="row">
+                <form action="" method="post" autocomplete="off">
+                    <div class="col s12">
+                        <div class="container">
+                            {% csrf_token %}
+                            {{form.as_p}}
+                            <div class="center">
+                                <input class="center btn waves-effect waves-light" type="submit" value="Adicionar">
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if messages %}
+{% for message in messages %}
+{% if message.tags %}
+<script>alert("{{ message }}")</script> {% endif %}
+{% endfor %}
+{% endif %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+		var elemens = document.querySelectorAll('select');
+		var instances = M.FormSelect.init(elemens);
+	});
+</script>
+
+{% endblock content %}

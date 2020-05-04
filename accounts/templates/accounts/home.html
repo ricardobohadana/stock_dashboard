@@ -15,7 +15,7 @@
 <body>
 	<nav>
 		<div class="nav-wrapper grey darken-3">
-			<a href="#" class="brand-logo center">Portfólio</a>
+			<a href="{% url 'homepage' %}" class="brand-logo center">Portfólio</a>
 			<a href="#" data-target="slide-out" class="sidenav-trigger"><i class="fas fa-bars"></i></a>
 			<ul id="nav-mobile" class="left hide-on-med-and-down">
 				<li><a href=""></a></li>
@@ -32,10 +32,13 @@
 			<div class="divider"></div>
 		</li>
 		<li><a class="subheader">Menu</a></li>
-		<li>
-			<div class="divider"></div>
-		</li>
 		<li><a href="{% url 'homepage' %}" class="waves-effect"><i class="far fa-star"></i>Home</a></li>
+		<div class="adicionar">
+			<li><a class="waves-effect" href="{% url 'addstockpage' %}"><i class="fas fa-plus"></i> Adicionar ação</a></li>
+		</div>
+		<div class="adicionar">
+			<li><a class="waves-effect" href="{% url 'walletpage' %}"><i class="fas fa-wallet"></i>Modificar Carteira</a></li>
+		</div>
 		<!-- <li><a href="#!" class="waves-effect"><i class="fas fa-list"></i>Lista</a></li>
 		<li><a href="#!" class="waves-effect"><i class="fas fa-chart-line"></i>Gráficos</a></li> -->
 		<li>
@@ -46,18 +49,13 @@
 			<ul class="collection with-header">
 				{% for stock in stocks %}
 				<li class="collection-item">
-					<div><a class="waves-effect black-text"
-							href="{% url 'detailedstockpage' pk=stock.pk %}">{{ stock.symbol }}</a><a
-							href="{% url 'removestockpage' pk=stock.pk %}" class="secondary-content"><i
-								class="far fa-window-close"></i></a></div>
+					<div><a class="waves-effect black-text" href="{% url 'detailedstockpage' pk=stock.pk %}">{{ stock.symbol }}</a>
+					<a href="{% url 'removestockpage' pk=stock.pk %}" class="secondary-content"><i class="far fa-window-close"></i></a></div>
 				</li>
 				{% endfor %}
 			</ul>
 		</div>
-		<div class="adicionar">
-			<li><a class="waves-effect" href="{% url 'addstockpage' %}"><i class="fas fa-plus"></i> Adicionar ação</a>
-			</li>
-		</div>
+
 	</ul>
 	{% block content %}
 	<div class="row">
@@ -149,5 +147,12 @@
 //{% comment %} BBAS3, JBSS3, MGLU3, SBSP3, VALE3, ITUB4, ELET6, CESP6, LREN3, SAPR11, PCAR3, HYPE3, UGPA3 {% endcomment %}
 //{% comment %} PCAR3, CESP6, SAPR11 {% endcomment %}
 </script>
-
+<style>
+	h4 {
+		margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+	}
+</style>
 </html>

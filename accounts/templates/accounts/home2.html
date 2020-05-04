@@ -1,0 +1,120 @@
+{% extends './home.html' %}
+{% block content %}
+<div class="hide-on-med-and-down">
+	{% if lucro > 0 %}
+		<div class="row green">
+			<div class="col s12">
+				<h4 class="green left ">Rendimento Atual: {{ lucro }}%<i class="fas fa-long-arrow-alt-up"></i></h4>
+	{% elif lucro < 0 %}
+		<div class="row red">
+			<div class="col s12">
+				<h4 class="red left ">Rendimento Atual: {{ lucro }}%<i class="fas fa-long-arrow-alt-down"></i></h4>
+	{% else %}
+		<div class="row amber">
+			<div class="col s12">
+				<h4 class="amber accent-4 left ">Rendimento Atual: {{ lucro }}%<i class="fas fa-minus"></i></h4>
+	{% endif %}
+			{% if obj.change_percent > 0 %}
+				<h4 class="green right"> {{ obj.change_percent }}%<i class="fas fa-long-arrow-alt-up"></i></h4>
+				<h4 class="green right">Ibovespa: {{ obj.price }}<i class="fas fa-long-arrow-alt-up"></i></h4>
+			{% elif obj.change_percent < 0 %}
+				<h4 class="red right"> {{ obj.change_percent }}%<i class="fas fa-long-arrow-alt-down"></i></h4>
+				<h4 class="red right">Ibovespa: {{ obj.price }}<i class="fas fa-long-arrow-alt-down"></i></h4>
+			{% else %}
+				<h4 class="amber accent-4 right"> {{ obj.change_percent }}%<i class="fas fa-minus"></i></h4>
+				<h4 class="amber accent-4 right">Ibovespa: {{ obj.price }}<i class="fas fa-minus"></i></h4>
+			{% endif %}
+			<div class="center"><a class="waves-effect waves-light btn " href="{% url 'updatestockspage' %}">Atualizar<i class="fas fa-submit"></i></a></div>
+		</div>
+	</div>
+</div>
+<div class="hide-on-large-only">
+	{% if lucro > 0 %}
+		<div class="row green">
+			<div class="col s12">
+				<h4 class="green center">Rendimento: {{ lucro }}%<i class="fas fa-long-arrow-alt-up"></i></h4>
+	{% elif lucro < 0 %}
+		<div class="row red">
+			<div class="col s12">
+				<h4 class="red center ">Rendimento: {{ lucro }}%<i class="fas fa-long-arrow-alt-down"></i></h4>
+	{% else %}
+		<div class="row amber">
+			<div class="col s12">
+				<h4 class="amber accent-4 center ">Rendimento: {{ lucro }}%<i class="fas fa-minus"></i></h4>
+	{% endif %}
+			</div>
+			<div class="row">
+			{% if obj.change_percent > 0 %}
+				<h4 class="green center">Ibovespa: {{ obj.price }}<i class="fas fa-long-arrow-alt-up"></i></h4>
+				<h4 class="green center"> {{ obj.change_percent }}%<i class="fas fa-long-arrow-alt-up"></i></h4>
+			{% elif obj.change_percent < 0 %}
+				<h4 class="red center">Ibovespa: {{ obj.price }}<i class="fas fa-long-arrow-alt-down"></i></h4>
+				<h4 class="red center"> {{ obj.change_percent }}%<i class="fas fa-long-arrow-alt-down"></i></h4>
+			{% else %}
+				<h4 class="amber accent-4 center">Ibovespa: {{ obj.price }}<i class="fas fa-minus"></i></h4>
+				<h4 class="amber accent-4 center"> {{ obj.change_percent }}%<i class="fas fa-minus"></i></h4>
+			{% endif %}
+		</div>
+	</div>
+	<h4 class="center"><a class="waves-effect waves-light btn" href="{% url 'updatestockspage' %}">Atualizar<i class="fas fa-submit"></i></a></h4>
+</div>
+<div class="row">
+	{% for stock in stocks %}
+	<div class="col s12 m6 l3">
+		<a class="grey-text text-darken-4" href="{% url 'detailedstockpage' pk=stock.pk %}">
+			{% if stock.change_percent > 0 %}
+			<div class="card green hoverable">
+			{% elif stock.change_percent < 0%}
+			<div class="card red hoverable">
+			{% else %}
+			<div class="card amber accent-4 hoverable">
+			{% endif %}
+				<div class="">
+					{% comment %} <a href="{% url 'removestockpage' pk=stock.pk %}" class="grey-text text-darken-4 right"><i class="far fa-window-close"></i></a> {% endcomment %}
+					<h4 class="center"><b>{{stock.symbol}}</b></h4>
+				</div>
+				<div class="card-content">
+					<div class="row">
+						<div class="col s12 l6 center-align">
+							<span class="">Preço: <b>R${{stock.price}}</b></span>
+						</div>
+						<div class="col s12 l6 center-align">
+							{% if stock.change_percent > 0 %}
+								<span class=""> Variação: <span class="green "> <b>{{ stock.change_percent}}%</b> <i class="fas fa-long-arrow-alt-up"></i></span></span>
+							{% elif stock.change_percent < 0 %}
+								<span class=""> Variação: <span class="red "> <b>{{ stock.change_percent}}%</b> <i class="fas fa-long-arrow-alt-down"></i></span></span>
+							{% else %}
+								<span class=""> Variação: <span class="amber accent-4 "> <b>{{ stock.change_percent}}%</b> <i class="fas fa-minus"></i></span></span>
+							{% endif %}
+						</div>
+						<div class="col s12 l12 center-align">
+							<span><span class="">Atualização: </span><span class=""><b>{{ stock.updated }}</b></span></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+	{% endfor %}
+</div>
+{% if messages %}
+{% for message in messages %}
+{% if message.tags %}
+<script>alert("{{ message }}")</script> {% endif %}
+{% endfor %}
+{% endif %}
+<script>
+	var key = 'JLXK7AOR79EQNKJ5';
+</script>
+<style>
+	.row .col {
+		padding: .75rem .75rem;
+	}
+	span {
+		font-size: 20px;
+	}
+	h4 {
+		padding: 0.75rem 0.75rem;
+	}
+</style>
+{% endblock content %}

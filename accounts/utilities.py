@@ -5,30 +5,11 @@ import pandas as pd
 import requests
 import bs4
 from bs4 import BeautifulSoup
-from .models import Stock
+from .models import Stock, Wallet
 import math
 import time
 pd.options.mode.chained_assignment = None
 
-
-# MEDIR O TEMPO DE PROCESSAMENTO DE CADA FUNÇÃO
-
-# CRIA O OBJETO JSON QUE SERÁ PASSADO PARA A PÁGINA HTML
-def createJSON():
-    stocks = Stock.objects.all()
-    dic = {}
-    for i in range(0, len(stocks)):
-        if dic.get(stocks[i].symbol) != None:
-            dic[stocks[i].symbol] = dic[stocks[i].symbol].append({
-                'price': stocks[i].price,
-                'updated': stocks[i].updated
-                })
-        else:
-            dic[stocks[i].symbol] = [{
-                'price': stocks[i].price,
-                'updated': stocks[i].updated
-                }]
-    return dic
 
 def get_Stock_Data_old(symbol):
     url = 'https://finance.yahoo.com/quote/'+ symbol +'.SA?p='+ symbol +'.SA&.tsrc=fin-srch'
@@ -40,9 +21,9 @@ def get_Stock_Data_old(symbol):
     try:
         vet = sp.find('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}).find_all('span')
         price = float(vet[0].text)
-        change_percentage = vet[1].text.split(' ')[1][1:6]
+        change_percentage = vet[1].text.split(' ')[1][1:5]
     except ValueError:
-        change_percentage = vet[1].text.split(' ')[1][2:7]
+        change_percentage = vet[1].text.split(' ')[1][2:6]
     except AttributeError:
         return 1
     # updated = vet[2].text[11:17]
@@ -50,8 +31,6 @@ def get_Stock_Data_old(symbol):
     jsobj = {
         'price': price,
         'change_percent': change_percentage,
-        # 'updated': updated,
-        # 'name': name,
         'symbol': symbol,
     }
     return jsobj
@@ -62,86 +41,24 @@ def get_Stock_Data_old(symbol):
 def get_Stock_Data(symbol):
     # start = time.process_time()
     try:
-        try:
-            today = datetime.today().strftime("%Y-%m-%d")
-            yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
-            df = web.DataReader(symbol.upper()+'.SA', data_source='yahoo', start=yesterday, end=today)
-            price_today =  round(df.Close.values[1], 2)
-            price_yesterday = round(df.Close.values[0], 2)
-            variance = round((((df.Close.values[1]/df.Close.values[0])-1)*100), 2)
-        except:
-            today = datetime.today().strftime("%Y-%m-%d")
-            yesterday = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
-            df = web.DataReader(symbol.upper()+'.SA', data_source='yahoo', start=yesterday, end=today)
-            price_today =  round(df.Close.values[1], 2)
-            price_yesterday = round(df.Close.values[0], 2)
-            variance = round((((df.Close.values[1]/df.Close.values[0])-1)*100), 2)
-
+        today = datetime.today().strftime("%Y-%m-%d")
+        yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+        df = web.DataReader(symbol.upper()+'.SA', data_source='yahoo', start=yesterday, end=today)
+        price_today =  round(df.Close.values[1], 2)
+        price_yesterday = round(df.Close.values[0], 2)
+        variance = round((((df.Close.values[1]/df.Close.values[0])-1)*100), 2)
+    
         jsobj = {
             'price': price_today,
             'change_percent': variance,
-            # 'updated': updated,
-            # 'name': name,
             'symbol': symbol,
-        }
+            }
 
     except:
         jsobj = get_Stock_Data_old(symbol)
     
-    # name = sp.find('div', {'class':'quote-header-section Cf Pos(r) Mb(5px) Maw($maxModuleWidth) Miw($minGridWidth) smartphone_Miw(ini) Miw(ini)!--tab768 Miw(ini)!--tab1024 Mstart(a) Mend(a) Px(20px) smartphone_Pb(0px) smartphone_Mb(0px)'}).find('h1').text[11:]
-    # print('Processamento de get_Stock_Data(): ' + str(time.process_time() - start))
     return jsobj
 
-
-# CRIA O OBJETO NA DATABASE NO CASO DE UM UPDATE
-def create_Stock_object(symbol, update):
-    # start = time.process_time()
-    # print('Processamento de create_Stock_object(): ' + str(time.process_time() - start))
-    jsobj = get_Stock_Data(symbol)
-    if jsobj == 1:
-        return False
-    else:
-        if check_duplicate(jsobj, symbol, update):
-            obj = Stock.objects.create(
-                    symbol = symbol,
-                    # name = jsobj['name'],
-                    price = jsobj['price'],
-                    # updated = jsobj['updated'],
-                    change_percent = jsobj['change_percent'],
-                )
-            return obj
-        else:
-            return print('é duplicata')
-    # print('Processamento de create_Stock_object(): ' + str(time.process_time() - start))
-
-
-
-# CHECA SE UM OBJETO NA DATABASE JÁ EXISTE PARA EVITAR ADICIONÁ-LO MAIS DE UMA VEZ
-def check_duplicate(obj, symbol, update):
-    symbol = symbol.upper()
-    filter_stocks = Stock.objects.filter(symbol=obj['symbol'])
-    if len(filter_stocks) == 0:
-        return True
-    else:
-        if update:
-            return True
-        else:
-            return False
-
-
-# PEGA OS OBJETOS AÇÃO DIFERENTES E MAIS ATUALIZADOS
-def get_diff_stocks():
-    stocks = Stock.objects.all()
-    if len(stocks) == 0:
-        return []
-    st = [stocks[0].symbol]
-    for i in range(1, len(stocks)):
-        if stocks[i].symbol not in st:
-            st.append(stocks[i].symbol)
-    st_final = [Stock.objects.filter(symbol=item).latest('updated') for item in st]
-    # for item in st:
-    #     st_final.append(Stock.objects.filter(symbol=item).latest('updated'))
-    return st_final
 
 
 # ADQUIRE OS DADOS HISTÓRICOS DE 180 DIAS
@@ -157,7 +74,6 @@ def get_historicalData(symbol, ndays):
             a = df.Close.values[i-1]
             b = df.Close.values[i]
             df['Variance'][i] = round((((b/a)-1)*100),2)
-
     df, prev = get_SMA(df)    
     variance = round((((df.Close.values[1]/df.Close.values[0])-1)*100), 2)
     datas = [[],[],[],[]]
@@ -170,15 +86,6 @@ def get_historicalData(symbol, ndays):
 
     return labs, datas, variance, prev
     
-
-
-# REMOVE AS DUPLICATAS DE UMA LISTA
-def check_2_remove(vet):
-    for item in vet:
-        if vet.count(item) > 1:
-            vet.remove(item)
-
-
 
 # PEGA OS ÍNDICES DA IBOVESPA
 def get_ibovespaData():
@@ -221,3 +128,47 @@ def get_SMA(df):
     prev[2].append('7')
 
     return df, prev
+
+def updateWallet():
+    wallet = Wallet.objects.all()
+    for item in wallet:
+        obj = Wallet.objects.filter(pk=item.pk)
+        money_amount = round(obj[0].stock.price * obj[0].stock_amount, 2)
+        obj.update(money_amount=money_amount)
+    return True
+
+
+# # REMOVE AS DUPLICATAS DE UMA LISTA
+# def check_2_remove(vet):
+#     for item in vet:
+#         if vet.count(item) > 1:
+#             vet.remove(item)
+
+
+
+# # CHECA SE UM OBJETO NA DATABASE JÁ EXISTE PARA EVITAR ADICIONÁ-LO MAIS DE UMA VEZ
+# def check_duplicate(obj, symbol, update):
+#     symbol = symbol.upper()
+#     filter_stocks = Stock.objects.filter(symbol=obj['symbol'])
+#     if len(filter_stocks) == 0:
+#         return True
+#     else:
+#         if update:
+#             return True
+#         else:
+#             return False
+
+
+# # PEGA OS OBJETOS AÇÃO DIFERENTES E MAIS ATUALIZADOS
+# def get_diff_stocks():
+#     stocks = Stock.objects.all()
+#     if len(stocks) == 0:
+#         return []
+#     st = [stocks[0].symbol]
+#     for i in range(1, len(stocks)):
+#         if stocks[i].symbol not in st:
+#             st.append(stocks[i].symbol)
+#     st_final = [Stock.objects.filter(symbol=item).latest('updated') for item in st]
+#     # for item in st:
+#     #     st_final.append(Stock.objects.filter(symbol=item).latest('updated'))
+#     return st_final
