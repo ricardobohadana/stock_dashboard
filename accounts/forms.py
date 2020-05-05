@@ -20,9 +20,10 @@ class WalletForm(ModelForm):
         model = Wallet
         field = [
             'stock',
-            'investment',
-            'stock_amount'
+            'stock_amount',
+            'buy_price',
         ]
         exclude = [
+            'investment',
             'money_amount',
         ]

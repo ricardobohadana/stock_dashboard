@@ -9,5 +9,8 @@ urlpatterns = [
     path('updatestock/', views.updatestocksView, name='updatestockspage'),
     path('detailedstock/<str:pk>', views.detailedstockView, name='detailedstockpage'),
     path('removestock/<str:pk>', views.removestockView, name='removestockpage'),
-    path('wallet/', views.walletView, name='walletpage'),
+    path('wallet/', views.WalletView.as_view(), name='walletpage'),
+    path('wallet/create', views.createWalletView.as_view(), name='createwalletpage'),
+    path('wallet/update', views.updateWalletView.as_view(), name='updatewalletpage'),
+    path('wallet/delete', views.deleteWalletView.as_view(), name='deletewalletpage'),
 ]

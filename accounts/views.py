@@ -1,11 +1,96 @@
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.generic import View
 from .models import Stock, Wallet
 from .forms import StockForm, WalletForm
 from django.contrib import messages
 from .utilities import *
 import simplejson as json
+
+class WalletView(View):
+    model = Wallet
+    template_name = 'accounts/wallet.html'
+
+    def get(self, request, *args, **kwargs):
+        stocks = Stock.objects.all()
+        wallet = Wallet.objects.all()
+        updateWallet()
+        context = {
+            'stocks': stocks,
+            'wallet': wallet,
+        }
+        return render(request, 'accounts/wallet.html', context)
+
+class createWalletView(View):
+    def get(self, request, *args, **kwargs):    
+        stock = Stock.objects.get(pk=request.GET.get('stock', None))
+        stock_amount = int(request.GET.get('stock_amount', None))
+        buy_price = float(request.GET.get('buy_price', None))
+        money_amount = stock.price * stock_amount
+        investment = float(buy_price * stock_amount)
+        
+        obj = Wallet.objects.create(
+            stock=stock,
+            stock_amount=stock_amount,
+            buy_price=round(buy_price,2),
+            money_amount=round(money_amount,2),
+            investment=round(investment,2),
+        )
+        obj.save()
+        data = {
+            'pk': obj.pk,
+            'stocksymbol': obj.stock.symbol,
+            'stock_price': obj.stock.price,
+            'stock_amount': obj.stock_amount,
+            'investment': obj.investment,
+            'money_amount': obj.money_amount,
+            'buy_price': obj.buy_price,
+        }
+        return JsonResponse(data)
+
+class updateWalletView(View):
+    def get(self, request, *args, **kwargs):
+        symbol = request.GET.get('stock_symbol', None)
+        stock_amount = int(request.GET.get('stock_amount', None))
+        buy_price = float(request.GET.get('buy_price', None))
+        print(buy_price)
+        stock = Stock.objects.filter(symbol=symbol)
+        stock = stock[0]
+        wallet = Wallet.objects.filter(stock=stock.pk)
+        stock_amount_new = (stock_amount + wallet[0].stock_amount)
+        investment_new = wallet[0].investment + (buy_price * stock_amount)
+        buy_price_new = ((stock_amount*buy_price)*(wallet[0].stock_amount * wallet[0].buy_price)/(stock_amount + wallet[0].stock_amount))
+        money_amount_new = stock_amount_new*stock.price
+        wallet.update(
+            investment=investment_new,
+            money_amount=money_amount_new,
+            stock_amount=stock_amount_new,
+            buy_price=buy_price_new,
+        )
+        obj = Wallet.objects.get(pk=wallet[0].pk)
+        data = {
+            'pk': obj.pk,
+            'stocksymbol': obj.stock.symbol,
+            'stock_price': obj.stock.price,
+            'stock_amount': obj.stock_amount,
+            'investment': obj.investment,
+            'money_amount': obj.money_amount,
+            'buy_price': obj.buy_price,
+        }
+        return JsonResponse(data)
+        
+
+class deleteWalletView(View):
+    def get(self, request, *args, **kwargs):
+        pk = request.GET.get('pk', None)
+        Wallet.objects.get(pk=pk).delete()
+        data = {
+            'deleted': True,
+        }
+        return JsonResponse(data)
+
+
 
 def newhomeView(request):
     st = Stock.objects.all()
@@ -25,28 +110,6 @@ def newhomeView(request):
         'obj': obj,
     }
     return render(request, 'accounts/home2.html', context)
-
-
-def walletView(request):
-    stocks = Stock.objects.all()
-    form = WalletForm()
-    wallet = Wallet.objects.all()
-    if not updateWallet():
-        messages.warning('Algo errado com o update')
-    if request.method == 'POST':
-        form = WalletForm(request.POST)
-        if form.is_valid():
-            nform = form.save(commit=False)
-            nform.money_amount = nform.investment
-            nform.save()
-            messages.success(request, 'Papéis adicionadas a sua carteira')
-            return redirect('walletpage')
-    context = {
-        'wallet': wallet,
-        'form': form,
-        'stocks':stocks,
-    }
-    return render(request, 'accounts/wallet.html', context)
 
 
 def newstockView(request):

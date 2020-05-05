@@ -1,68 +1,250 @@
 {% extends './home.html' %}
+{% load tempfiltertags %}
 {% block content %}
 
+<!-- Table Structure -->
+<div class="container">
+	<div class="card-panel z-depth-3">
+		<div class="card-content">
+			<table id="walletTable" class="striped centered">
+				<thead>
+					<tr>
+						<th>Ativo</th>
+						<th>Quantidade</th>
+						<th>Investimento Inicial</th>
+						<th>Preço Atual</th>
+						<th>Capital Atualizado</th>
+						<th>Ganho percentual</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if wallet %}
+					{% for item in wallet %}
+					<tr id="wallet-{{item.pk}}">
+						<td class="">{{item.stock.symbol}}</td>
+						<td class="stock_amount">{{item.stock_amount}}</td>
+						<td class="">R$ {{item.investment}}</td>
+						<td class="">R$ {{item.stock.price}}</td>
+						<td class="">R$ {{item.money_amount}}</td>
+						<td class="">{{item.money_amount|changePercent:item.investment }} %</td>
+						{% comment %} Modal Trigger {% endcomment %}
+						<td><button onClick="editWallet('{{item.stock.symbol}}')" class="waves-effect waves-light btn modal-trigger" href="#modal1">EDITAR</button></td>
+						{% comment %} DELETE TRIGGER {% endcomment %}
+						<td><button onClick="deleteWallet({{item.pk}})" class="waves-effect waves-light btn">LIQUIDAR</button></td>
+					</tr>
+					{% endfor %}
+					{% endif %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- End Table Structure -->
 
-<div class="container">
-    <div class="card-panel z-depth-3">
-        <div class="card-content">
-            <table class="striped centered">
-                <thead>
-                    <tr>
-                        <th>Ativo</th>
-                        <th>Quantidade</th>
-                        <th>Investimento Inicial</th>
-                        <th>Preço Atual</th>
-                        <th>Capital Atualizado</th>
-                        <th>Ganho percentual</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in wallet %}
-                    <tr>
-                        <td>{{item.stock.symbol}}</td>
-                        <td>{{item.stock_amount}}</td>
-                        <td>R$ {{item.investment}}</td>
-                        <td>R$ {{item.stock.price}}</td>
-                        <td>R$ {{item.money_amount}}</td>
-                        <td>ganho %</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+
+<!-- Modal Structure -->
+<div id="modal1" class="modal bottom-sheet">
+	<div class="modal-content">
+		<div class="container">
+			<div class="card-panel z-depth-3">
+				<div class="card-content">
+					<h3 class="center">Editar carteira</h3>
+					<h4 id="stock-title" class="center"></h4>
+					<form id="updateWallet" action="">
+						<div class="input-field col s6">
+							<input name="stock_amount_update" id="stock_amount_update" type="number" class="validate">
+							<label for="stock_amount_update">Quantidade</label>
+						</div>
+						<div class="input-field col s6">
+							<input name="buy_price_update" id="buy_price_update" type="number" step="0.01" class="validate">
+							<label for="buy_price_update">Preço de compra</label>
+						</div>
+						<div class="center">
+							<button class="center btn" type="submit">Atualizar</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<a href="#!" class="modal-close waves-effect waves-green btn-flat">Fechar</a>
+	</div>
 </div>
+<!-- End Modal Structure -->
+
+<!-- Add Wallet Item Form -->
 <div class="container">
-    <div class="card-panel z-depth-5">
-        <div class="card-content">
-            <div class="row">
-                <form action="" method="post" autocomplete="off">
-                    <div class="col s12">
-                        <div class="container">
-                            {% csrf_token %}
-                            {{form.as_p}}
-                            <div class="center">
-                                <input class="center btn waves-effect waves-light" type="submit" value="Adicionar">
-                            </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="card-panel z-depth-5">
+		<div class="card-content">
+			<div class="row">
+				<form id="createWallet" action="" method="" autocomplete="off">
+					<div class="col s12">
+						<div class="container">
+							{% csrf_token %}
+							<select name='stockObject'>
+								<option value="" disabled selected>Selecione o ativo</option>
+								{% for stock in stocks %}
+								<option value={{stock.pk}}>{{ stock.symbol }}</option>
+								{% endfor %}
+							</select>
+							<div class="input-field col s6">
+								<input name="stock_amount" id="stock_amount" type="number" class="validate">
+								<label for="stock_amount">Quantidade</label>
+							</div>
+							<div class="input-field col s6">
+								<input name="buy_price" id="buy_price" type="number" step="0.01" class="validate">
+								<label for="buy_price">Preço de compra</label>
+							</div>
+							<div class="center">
+								<button class="center btn" type="submit">Enviar</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
+<!-- End Add Wallet Item Form -->
 {% if messages %}
 {% for message in messages %}
 {% if message.tags %}
 <script>alert("{{ message }}")</script> {% endif %}
 {% endfor %}
 {% endif %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-		var elemens = document.querySelectorAll('select');
-		var instances = M.FormSelect.init(elemens);
-	});
+
+document.addEventListener('DOMContentLoaded', function() {
+	var elems = document.querySelectorAll('.modal');
+	var instances = M.Modal.init(elems);
+});
+
+
+
+var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+$.ajaxSetup({
+	beforeSend: function (xhr, settings) {
+		xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	}
+});
+document.addEventListener('DOMContentLoaded', function () {
+	var elemens = document.querySelectorAll('select');
+	var instances = M.FormSelect.init(elemens);
+});
+
+
+// Create Wallet Item Django Ajax Call
+$("form#createWallet").submit(function() {
+		var stockInput = $('select[name="stockObject"]').val().trim();
+		var buyPriceInput = $('input[name="buy_price"]').val().trim();
+		var stockAmoutInput = $('input[name="stock_amount"]').val().trim();
+		console.log(stockInput)
+		console.log(buyPriceInput)
+		console.log(stockAmoutInput)
+		if (stockInput && buyPriceInput && stockAmoutInput) {
+				// Create Ajax Call
+				$.ajax({
+						url: '{% url "createwalletpage" %}',
+						data: {
+								'stock': stockInput,
+								'buy_price': buyPriceInput,
+								'stock_amount': stockAmoutInput
+						},
+						dataType: 'json',
+						success: function (data) {
+								if (data) {
+									appendWalletToTable(data);
+								}
+						}
+				});
+			} else {
+				alert("All fields must have a valid value.");
+		}
+		$('form#createWallet').trigger("reset");
+		return false;
+});
+
+function appendWalletToTable(wallet){
+	$("#walletTable > tbody:last-child").append(`
+		<tr id="wallet-${wallet.pk}">
+			<td>${wallet.stocksymbol}</td>
+			<td>${wallet.stock_amount}</td>
+			<td>R$ ${wallet.investment}</td>
+			<td>R$ ${wallet.stock_price}</td>
+			<td>R$ ${wallet.money_amount}</td>
+			<td>${((wallet.money_amount/wallet.investment)-1)*100} %</td>
+			<td><button onClick="editWallet('${wallet.stocksymbol}')" class="waves-effect waves-light btn modal-trigger" href="#modal1">EDITAR</button></td>
+			<td><button onClick="deleteWallet('${wallet.pk}')" class="waves-effect waves-light btn" href="#modal1">LIQUIDAR</button></td>
+		</tr>
+	`);
+}
+
+$("form#updateWallet").submit(function() {
+	var stock_symbol = $('#stock-title').contents().text()
+    var stock_amount = $('input[name="stock_amount_update"]').val().trim();
+    var buy_price = $('input[name="buy_price_update"]').val().trim();
+    if (stock_amount && buy_price ) {
+        // Create Ajax Call
+        $.ajax({
+            url: '{% url "updatewalletpage" %}',
+            data: {
+							'stock_symbol': stock_symbol,
+							'stock_amount': stock_amount,
+							'buy_price': buy_price,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                  updateWallet(data);
+                }
+            }
+        });
+       } else {
+        alert("All fields must have a valid value.");
+    }
+    $('form#updateWallet').trigger("reset");
+    $('#myModal').modal('hide');
+    return false;
+});
+
+
+function editWallet(symbol) {
+  if (symbol) {
+		if(!isEmpty($('#stock-title'))){
+			$('#stock-title').contents().remove()
+		}
+		symbol.toString()
+    $('#stock-title').append(`${symbol}`);
+
+  }
+}
+
+function isEmpty( el ){
+  return !$.trim(el.html())
+}
+
+
+function deleteWallet(id) {
+  var action = confirm("Tem certeza que deseja liquidar essa ação?");
+  if (action != false) {
+    $.ajax({
+        url: '{% url "deletewalletpage" %}',
+        data: {
+            'pk': id,
+        },
+        dataType: 'json',
+        success: function (data) {
+            if (data.deleted) {
+              $("#wallet-" + id).remove();
+            }
+        }
+    });
+  }
+}
 </script>
 
 {% endblock content %}
