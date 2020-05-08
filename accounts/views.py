@@ -8,6 +8,22 @@ from django.contrib import messages
 from .utilities import *
 import simplejson as json
 
+
+class forexView(View):
+    model = None
+
+    def get(self, request, *args, **kwargs):
+        stocks = Stock.objects.all()
+        context = {
+            'stocks': stocks
+        }
+        return render(request, 'accounts/forex.html', context)
+
+
+
+
+
+
 class WalletView(View):
     model = Wallet
     template_name = 'accounts/wallet.html'

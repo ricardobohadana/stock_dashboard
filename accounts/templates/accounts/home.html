@@ -1,158 +1,106 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="{% static '/css/home.css'%}" />
+    <script
+      src="https://kit.fontawesome.com/034b561e46.js"
+      crossorigin="anonymous"
+    ></script>
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<!-- Compiled and minified CSS -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-	<script src="https://kit.fontawesome.com/034b561e46.js" crossorigin="anonymous"></script>
+    <title>Stock Dashboard</title>
+  </head>
 
-	<title>Stock Dashboard</title>
-</head>
+  <body>
+    <nav>
+      <div class="nav-wrapper grey darken-3">
+        <a href="{% url 'homepage' %}" class="brand-logo center">Portfólio</a>
+        <a href="#" data-target="slide-out" class="sidenav-trigger"
+          ><i class="fas fa-bars"></i
+        ></a>
+        <ul id="nav-mobile" class="left hide-on-med-and-down">
+          <li><a href=""></a></li>
+          <li><a href=""></a></li>
+          <li><a href=""></a></li>
+          <li class="sidenav-trigger" data-target="slide-out">
+            <a class="waves-effect waves-light btn-lg"
+              ><i class="fas fa-bars"></i
+            ></a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <ul id="slide-out" class="sidenav">
+      <li>
+        <div class="divider"></div>
+      </li>
+      <li><a class="subheader">Menu</a></li>
+      <li>
+        <a href="{% url 'homepage' %}" class="waves-effect"
+          ><i class="far fa-star"></i>Home</a
+        >
+      </li>
+      <div class="adicionar">
+        <li>
+          <a class="waves-effect" href="{% url 'addstockpage' %}"
+            ><i class="fas fa-plus"></i> Adicionar ação</a
+          >
+        </li>
+      </div>
+      <div class="adicionar">
+        <li>
+          <a class="waves-effect" href="{% url 'walletpage' %}"
+            ><i class="fas fa-wallet"></i>Modificar Carteira</a
+          >
+        </li>
+      </div>
+      <div class="adicionar">
+        <li>
+          <a class="waves-effect" href="{% url 'forexpage' %}"
+            ><i class="fas fa-dollar-sign"></i>BRL - USD</a
+          >
+        </li>
+      </div>
+      <li>
+        <div class="divider"></div>
+      </li>
+      <div class="ações">
+        <li><a class="subheader">Suas ações</a></li>
+        <ul class="collection with-header">
+          {% for stock in stocks %}
+          <li class="collection-item">
+            <div>
+              <a
+                class="waves-effect black-text"
+                href="{% url 'detailedstockpage' pk=stock.pk %}"
+                >{{ stock.symbol }}</a
+              >
+              <a
+                href="{% url 'removestockpage' pk=stock.pk %}"
+                class="secondary-content"
+                ><i class="far fa-window-close"></i
+              ></a>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </ul>
+    <div class="background-img">
+      {% block content %}
+      <!-- Main content goes here -->
+      {% endblock content %}
+    </div>
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="{% static '/js/home.js' %}"></script>
 
-<body>
-	<nav>
-		<div class="nav-wrapper grey darken-3">
-			<a href="{% url 'homepage' %}" class="brand-logo center">Portfólio</a>
-			<a href="#" data-target="slide-out" class="sidenav-trigger"><i class="fas fa-bars"></i></a>
-			<ul id="nav-mobile" class="left hide-on-med-and-down">
-				<li><a href=""></a></li>
-				<li><a href=""></a></li>
-				<li><a href=""></a></li>
-				<li class="sidenav-trigger " data-target="slide-out">
-					<a class="waves-effect waves-light btn-lg"><i class="fas fa-bars "></i></a>
-				</li>
-			</ul>
-		</div>
-	</nav>
-	<ul id="slide-out" class="sidenav">
-		<li>
-			<div class="divider"></div>
-		</li>
-		<li><a class="subheader">Menu</a></li>
-		<li><a href="{% url 'homepage' %}" class="waves-effect"><i class="far fa-star"></i>Home</a></li>
-		<div class="adicionar">
-			<li><a class="waves-effect" href="{% url 'addstockpage' %}"><i class="fas fa-plus"></i> Adicionar ação</a></li>
-		</div>
-		<div class="adicionar">
-			<li><a class="waves-effect" href="{% url 'walletpage' %}"><i class="fas fa-wallet"></i>Modificar Carteira</a></li>
-		</div>
-		<!-- <li><a href="#!" class="waves-effect"><i class="fas fa-list"></i>Lista</a></li>
-		<li><a href="#!" class="waves-effect"><i class="fas fa-chart-line"></i>Gráficos</a></li> -->
-		<li>
-			<div class="divider"></div>
-		</li>
-		<div class="ações">
-			<li><a class="subheader">Suas ações</a></li>
-			<ul class="collection with-header">
-				{% for stock in stocks %}
-				<li class="collection-item">
-					<div><a class="waves-effect black-text" href="{% url 'detailedstockpage' pk=stock.pk %}">{{ stock.symbol }}</a>
-					<a href="{% url 'removestockpage' pk=stock.pk %}" class="secondary-content"><i class="far fa-window-close"></i></a></div>
-				</li>
-				{% endfor %}
-			</ul>
-		</div>
-
-	</ul>
-	{% block content %}
-	<div class="row">
-		<div class="col s12 m2">
-			<h4 class="center">Rendimento atual<br></h4>
-			{% if lucro > 0 %}
-			<h3 class="green-text center">{{ lucro }} %<i class="fas fa-long-arrow-alt-up"></i></h3>
-			{% elif lucro < 0 %}
-			<h3 class="red-text center">{{ lucro }} %<i class="fas fa-long-arrow-alt-down"></i></h3>
-			{% else %}
-			<h3 class="amber-text text-accent-4 center">{{ lucro }} %<i class="fas fa-minus"></i></h3>
-			{% endif %}
-		</div>
-		<div class="col s12 m8">
-			<table class="striped responsive-table">
-				<thead class="">
-					<tr>
-						<th class="center">Gráficos</th>
-						<th class="center">Símbolo</th>
-						<th class="center">Preço</th>
-						<th class="center">Variação</th>
-						<th class="center">Data de Atualização</th>
-						<th class="center"><a class="waves-effect waves-light btn"
-								href="{% url 'updatestockspage' %}">Atualizar Tudo<i class="fas fa-submit"></i></a></th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for stock in stocks %}
-					<tr>
-						<td class="center"><a class="" href="{% url 'detailedstockpage' pk=stock.pk %}"><i
-									class="fas fa-chart-line"></i></a> </td>
-						<td class="center">{{ stock.symbol }}</td>
-						<td class="center">R$ {{ stock.price }}</td>
-						{% if stock.change_percent > 0 %}
-						<td class="green-text center"> {{ stock.change_percent}}% <i
-								class="fas fa-long-arrow-alt-up"></i></td>
-						{% elif stock.change_percent < 0 %}
-						<td class="red-text center"> {{ stock.change_percent}}% <i
-								class="fas fa-long-arrow-alt-down"></i></td>
-						{% else %}
-						<td class="amber-text text-accent-4 center"> {{ stock.change_percent}}% <i
-								class="fas fa-minus"></i></td>
-						{% endif %}
-						<td class="center">{{ stock.updated }} </td>
-						<td class="center"><a class="waves-effect waves-light btn"
-								href="{% url 'updatestockpage' pk=stock.pk %}">Atualizar<i
-									class="fas fa-submit"></i></a></td>
-					</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-		</div>
-		<div class="col s12 m2">
-			<h4 class="center">Ibovespa<br></h4>
-			{% if obj.change_percent > 0 %}
-			<h3 class="green-text center">{{ obj.price }}<i class="fas fa-long-arrow-alt-up"></i></h3>
-			<h3 class="green-text center">{{ obj.change_percent }} %<i class="fas fa-long-arrow-alt-up"></i></h3>
-			{% elif obj.change_percent < 0 %}
-			<h3 class="red-text center"> {{ obj.price }}<i class="fas fa-long-arrow-alt-down"></i></h3>
-			<h3 class="red-text center"> {{ obj.change_percent }} %<i class="fas fa-long-arrow-alt-down"></i></h3>
-			{% else %}
-			<h3 class="amber-text text-accent-4 center"> {{ obj.price }}<i class="fas fa-minus"></i></h3>
-			<h3 class="amber-text text-accent-4 center"> {{ obj.change_percent }} %<i class="fas fa-minus"></i></h3>
-			{% endif %}
-		</div>
-	</div>
-	{% if messages %}
-	{% for message in messages %}
-	{% if message.tags %}
-	<script>alert("{{ message }}")</script> {% endif %}
-	{% endfor %}
-	{% endif %}
-	{% endblock content %}
-
-</body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-<script>
-	var elem = document.querySelector('.sidenav');
-	var instance = new M.Sidenav(elem);
-	document.addEventListener('DOMContentLoaded', function () {
-		var elems = document.querySelectorAll('.sidenav');
-		var instances = M.Sidenav.init(elems, options);
-	});
-	document.addEventListener('DOMContentLoaded', function () {
-		var elems = document.querySelectorAll('.sidenav');
-		var instances = M.Sidenav.init(elems, options);
-	});
-
-//{% comment %} BBAS3, JBSS3, MGLU3, SBSP3, VALE3, ITUB4, ELET6, CESP6, LREN3, SAPR11, PCAR3, HYPE3, UGPA3 {% endcomment %}
-//{% comment %} PCAR3, CESP6, SAPR11 {% endcomment %}
-</script>
-<style>
-	h4 {
-		margin-block-start: 0em;
-    margin-block-end: 0em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-	}
-</style>
+  <style></style>
 </html>

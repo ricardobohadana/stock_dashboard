@@ -1,4 +1,5 @@
 {% extends './home.html' %}
+{% load static %}
 {% load tempfiltertags %}
 {% block content %}
 
@@ -21,12 +22,12 @@
 					{% if wallet %}
 					{% for item in wallet %}
 					<tr id="wallet-{{item.pk}}">
-						<td class="">{{item.stock.symbol}}</td>
-						<td class="stock_amount">{{item.stock_amount}}</td>
-						<td class="">R$ {{item.investment}}</td>
-						<td class="">R$ {{item.stock.price}}</td>
-						<td class="">R$ {{item.money_amount}}</td>
-						<td class="">{{item.money_amount|changePercent:item.investment }} %</td>
+						<td class="stock-symbol">{{item.stock.symbol}}</td>
+						<td class="stock-amount">{{item.stock_amount}}</td>
+						<td class="stock-investment">R$ {{item.investment}}</td>
+						<td class="stock-price">R$ {{item.stock.price}}</td>
+						<td class="stock-money-amount">R$ {{item.money_amount}}</td>
+						<td class="stock-change-percent">{{item.money_amount|changePercent:item.investment }} %</td>
 						{% comment %} Modal Trigger {% endcomment %}
 						<td><button onClick="editWallet('{{item.stock.symbol}}')" class="waves-effect waves-light btn modal-trigger" href="#modal1">EDITAR</button></td>
 						{% comment %} DELETE TRIGGER {% endcomment %}
@@ -114,137 +115,10 @@
 {% endfor %}
 {% endif %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
 <script>
-
-document.addEventListener('DOMContentLoaded', function() {
-	var elems = document.querySelectorAll('.modal');
-	var instances = M.Modal.init(elems);
-});
-
-
-
-var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-
-$.ajaxSetup({
-	beforeSend: function (xhr, settings) {
-		xhr.setRequestHeader("X-CSRFToken", csrftoken);
-	}
-});
-document.addEventListener('DOMContentLoaded', function () {
-	var elemens = document.querySelectorAll('select');
-	var instances = M.FormSelect.init(elemens);
-});
-
-
-// Create Wallet Item Django Ajax Call
-$("form#createWallet").submit(function() {
-		var stockInput = $('select[name="stockObject"]').val().trim();
-		var buyPriceInput = $('input[name="buy_price"]').val().trim();
-		var stockAmoutInput = $('input[name="stock_amount"]').val().trim();
-		console.log(stockInput)
-		console.log(buyPriceInput)
-		console.log(stockAmoutInput)
-		if (stockInput && buyPriceInput && stockAmoutInput) {
-				// Create Ajax Call
-				$.ajax({
-						url: '{% url "createwalletpage" %}',
-						data: {
-								'stock': stockInput,
-								'buy_price': buyPriceInput,
-								'stock_amount': stockAmoutInput
-						},
-						dataType: 'json',
-						success: function (data) {
-								if (data) {
-									appendWalletToTable(data);
-								}
-						}
-				});
-			} else {
-				alert("All fields must have a valid value.");
-		}
-		$('form#createWallet').trigger("reset");
-		return false;
-});
-
-function appendWalletToTable(wallet){
-	$("#walletTable > tbody:last-child").append(`
-		<tr id="wallet-${wallet.pk}">
-			<td>${wallet.stocksymbol}</td>
-			<td>${wallet.stock_amount}</td>
-			<td>R$ ${wallet.investment}</td>
-			<td>R$ ${wallet.stock_price}</td>
-			<td>R$ ${wallet.money_amount}</td>
-			<td>${((wallet.money_amount/wallet.investment)-1)*100} %</td>
-			<td><button onClick="editWallet('${wallet.stocksymbol}')" class="waves-effect waves-light btn modal-trigger" href="#modal1">EDITAR</button></td>
-			<td><button onClick="deleteWallet('${wallet.pk}')" class="waves-effect waves-light btn" href="#modal1">LIQUIDAR</button></td>
-		</tr>
-	`);
-}
-
-$("form#updateWallet").submit(function() {
-	var stock_symbol = $('#stock-title').contents().text()
-    var stock_amount = $('input[name="stock_amount_update"]').val().trim();
-    var buy_price = $('input[name="buy_price_update"]').val().trim();
-    if (stock_amount && buy_price ) {
-        // Create Ajax Call
-        $.ajax({
-            url: '{% url "updatewalletpage" %}',
-            data: {
-							'stock_symbol': stock_symbol,
-							'stock_amount': stock_amount,
-							'buy_price': buy_price,
-            },
-            dataType: 'json',
-            success: function (data) {
-                if (data) {
-                  updateWallet(data);
-                }
-            }
-        });
-       } else {
-        alert("All fields must have a valid value.");
-    }
-    $('form#updateWallet').trigger("reset");
-    $('#myModal').modal('hide');
-    return false;
-});
-
-
-function editWallet(symbol) {
-  if (symbol) {
-		if(!isEmpty($('#stock-title'))){
-			$('#stock-title').contents().remove()
-		}
-		symbol.toString()
-    $('#stock-title').append(`${symbol}`);
-
-  }
-}
-
-function isEmpty( el ){
-  return !$.trim(el.html())
-}
-
-
-function deleteWallet(id) {
-  var action = confirm("Tem certeza que deseja liquidar essa ação?");
-  if (action != false) {
-    $.ajax({
-        url: '{% url "deletewalletpage" %}',
-        data: {
-            'pk': id,
-        },
-        dataType: 'json',
-        success: function (data) {
-            if (data.deleted) {
-              $("#wallet-" + id).remove();
-            }
-        }
-    });
-  }
-}
+const create_url = "{% url 'createwalletpage' %}"
+const update_url = "{% url 'updatewalletpage' %}"
+const delete_url = "{% url 'deletewalletpage' %}"
 </script>
-
-{% endblock content %}
+<script src="{% static '/js/wallet.js' %}"></script>
+{% endblock content%}
