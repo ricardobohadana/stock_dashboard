@@ -107,6 +107,7 @@
 		</div>
 	</div>
 </div>
+
 <!-- End Add Wallet Item Form -->
 {% if messages %}
 {% for message in messages %}
@@ -116,9 +117,9 @@
 {% endif %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-const create_url = "{% url 'createwalletpage' %}"
-const update_url = "{% url 'updatewalletpage' %}"
-const delete_url = "{% url 'deletewalletpage' %}"
+	const create_url = "{% url 'createwalletpage' %}";
+	const update_url = "{% url 'updatewalletpage' %}";
+	const delete_url = "{% url 'deletewalletpage' %}";
 </script>
 <script src="{% static '/js/wallet.js' %}"></script>
 {% endblock content%}

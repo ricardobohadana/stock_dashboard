@@ -42,8 +42,12 @@ def get_Stock_Data(symbol):
     # start = time.process_time()
     try:
         today = datetime.today().strftime("%Y-%m-%d")
-        yesterday = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
+        yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
         df = web.DataReader(symbol.upper()+'.SA', data_source='yahoo', start=yesterday, end=today)
+        if len(df) == 1:
+            yesterday = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
+            df = web.DataReader(symbol.upper()+'.SA', data_source='yahoo', start=yesterday, end=today)
+
         price_today =  round(df.Close.values[1], 2)
         price_yesterday = round(df.Close.values[0], 2)
         variance = round((((df.Close.values[1]/df.Close.values[0])-1)*100), 2)

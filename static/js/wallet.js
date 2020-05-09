@@ -8,45 +8,15 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Get CSRFTOKEN for 'POST' requests and set it up with all ajax calls
-var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-$.ajaxSetup({
-  beforeSend: function (xhr, settings) {
-    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-  },
-});
+// var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+// $.ajaxSetup({
+//   beforeSend: function (xhr, settings) {
+//     xhr.setRequestHeader("X-CSRFToken", csrftoken);
+//   },
+// });
 document.addEventListener("DOMContentLoaded", function () {
   var elemens = document.querySelectorAll("select");
   var instances = M.FormSelect.init(elemens);
-});
-
-// Create Wallet Item Django Ajax Call
-$("form#createWallet").submit(function () {
-  var stockInput = $('select[name="stockObject"]').val().trim();
-  var buyPriceInput = $('input[name="buy_price"]').val().trim();
-  var stockAmoutInput = $('input[name="stock_amount"]').val().trim();
-  location.href = '{% url "createwalletpage" %}';
-  if (stockInput && buyPriceInput && stockAmoutInput) {
-    // Create Ajax Call
-    $.ajax({
-      url: create_url,
-      data: {
-        stock: stockInput,
-        buy_price: buyPriceInput,
-        stock_amount: stockAmoutInput,
-      },
-      dataType: "json",
-      success: function (data) {
-        if (data) {
-          appendWalletToTable(data);
-          createrowTotal();
-        }
-      },
-    });
-  } else {
-    alert("All fields must have a valid value.");
-  }
-  $("form#createWallet").trigger("reset");
-  return false;
 });
 
 // Append created item to wallet table
@@ -98,6 +68,7 @@ $("form#updateWallet").submit(function () {
   $("#myModal").modal("hide");
   return false;
 });
+
 function editWallet(symbol) {
   if (symbol) {
     if (!isEmpty($("#stock-title"))) {
@@ -156,11 +127,46 @@ function createrowTotal() {
   $("#walletTable > tbody:last-child").append(`
 		<tr id="wallet-table-total">
 			<td class="stock-symbol"><b>TOTAL</b></td>
-			<td class="stock-amount"><b>${total_amount}</b></td>
-			<td class="stock-investment"><b>R$ ${total_investment}</b></td>
+			<td class="stock-amount"><b>${Math.round(100 * total_amount) / 100}</b></td>
+			<td class="stock-investment"><b>R$ ${
+        Math.round(100 * total_investment) / 100
+      }</b></td>
 			<td class="stock-price"><b>-</b></td>
-			<td class="stock-money-amount"><b>R$ ${total_money_amount}</b></td>
-			<td class="stock-change-percent"><b>${total_profit}%</b></td>
+			<td class="stock-money-amount"><b>R$ ${
+        Math.round(100 * total_money_amount) / 100
+      }</b></td>
+			<td class="stock-change-percent"><b>${
+        Math.round(100 * total_profit) / 100
+      }%</b></td>
 		</tr>  
 	`);
 }
+
+// Create Wallet Item Django Ajax Call
+$("form#createWallet").submit(function () {
+  var stockInput = $('select[name="stockObject"]').val().trim();
+  var buyPriceInput = $('input[name="buy_price"]').val().trim();
+  var stockAmoutInput = $('input[name="stock_amount"]').val().trim();
+  if (stockInput && buyPriceInput && stockAmoutInput) {
+    // Create Ajax Call
+    $.ajax({
+      url: create_url,
+      data: {
+        stock: stockInput,
+        buy_price: buyPriceInput,
+        stock_amount: stockAmoutInput,
+      },
+      dataType: "json",
+      success: function (data) {
+        if (data) {
+          console.log("executed");
+          appendWalletToTable(data);
+          createrowTotal();
+        }
+      },
+    });
+  } else {
+    alert("All fields must have a valid value.");
+  }
+  $("form#createWallet").trigger("reset");
+});
