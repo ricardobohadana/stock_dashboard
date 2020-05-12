@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 
 
 urlpatterns = [
+    # -------------------------------- WEB URLS -------------------------------------------
     path('', views.newhomeView, name='homepage'),
     path('addstock/', views.newstockView, name='addstockpage'),
     path('updatestock/', views.updatestocksView, name='updatestockspage'),
@@ -15,3 +16,4 @@ urlpatterns = [
     path('wallet/update', views.updateWalletView.as_view(), name='updatewalletpage'),
     path('wallet/delete', views.deleteWalletView.as_view(), name='deletewalletpage'),
 ]
+    

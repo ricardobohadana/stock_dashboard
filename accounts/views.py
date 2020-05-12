@@ -70,13 +70,12 @@ class updateWalletView(View):
         symbol = request.GET.get('stock_symbol', None)
         stock_amount = int(request.GET.get('stock_amount', None))
         buy_price = float(request.GET.get('buy_price', None))
-        print(buy_price)
         stock = Stock.objects.filter(symbol=symbol)
         stock = stock[0]
         wallet = Wallet.objects.filter(stock=stock.pk)
         stock_amount_new = (stock_amount + wallet[0].stock_amount)
         investment_new = wallet[0].investment + (buy_price * stock_amount)
-        buy_price_new = ((stock_amount*buy_price)*(wallet[0].stock_amount * wallet[0].buy_price)/(stock_amount + wallet[0].stock_amount))
+        buy_price_new = ((stock_amount*buy_price)*(wallet[0].stock_amount * wallet[0].buy_price))/(stock_amount + wallet[0].stock_amount)
         money_amount_new = stock_amount_new*stock.price
         wallet.update(
             investment=investment_new,

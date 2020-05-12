@@ -9,7 +9,8 @@
 </div>
 <div class="divider black"></div>
 <div class="row">
-	<div class="col s12 m7">
+	<div class="col s0 m1"></div>
+	<div class="col s12 m6">
 		<div class="row">
 			<div class="col m4"></div>
 			<div class="input-field col s12 m3">
@@ -28,6 +29,9 @@
 		</div>
 		<div class="row">
 			<canvas id="stockChart" width="500" height="300"></canvas>
+		</div>
+		<div class="row">
+			<canvas id="stockChartpercent" width="500" height="300"></canvas>
 		</div>
 		<div class="row">
 			<table class="striped centered">
@@ -57,7 +61,7 @@
 			</table>
 		</div>
 	</div>
-	<div class="col s10 m5">
+	<div class="col s10 m4">
 		<table class="striped centered">
 			<thead>
 				<tr>
@@ -83,9 +87,11 @@
 			</tbody>
 		</table>
 	</div>
+	<div class="col s0 m1"></div>
 </div>
 </div>
 </div>
+{{ variance|json_script:"variance" }}
 {{ labs|json_script:"labs" }}
 {{ stock|json_script:"stock" }}
 {{ sma15|json_script:"sma15" }}

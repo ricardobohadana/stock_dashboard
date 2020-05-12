@@ -66,7 +66,6 @@ function createChartpercent(label, dataset) {
       negative.push(dataset[i]);
     }
   }
-  console.log(positive, negative);
   // CREATING CHART
   var ctx = document.getElementById("forexChartpercent").getContext("2d");
   var chart = new Chart(ctx, {
