@@ -5,9 +5,8 @@ from . import views
 
 urlpatterns = [
     # -------------------------------- WEB URLS -------------------------------------------
-    path('', views.newhomeView, name='homepage'),
+    path('', views.newhomeView.as_view(), name='homepage'),
     path('addstock/', views.newstockView, name='addstockpage'),
-    path('updatestock/', views.updatestocksView, name='updatestockspage'),
     path('detailedstock/<str:pk>', views.detailedstockView, name='detailedstockpage'),
     path('removestock/<str:pk>', views.removestockView, name='removestockpage'),
     path('forex/', views.forexView.as_view(), name='forexpage'),

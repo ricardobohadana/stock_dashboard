@@ -26,7 +26,6 @@
 				<h4 class="amber accent-4 right"> {{ obj.change_percent }}%<i class="fas fa-minus"></i></h4>
 				<h4 class="amber accent-4 right">Ibovespa: {{ obj.price }}<i class="fas fa-minus"></i></h4>
 			{% endif %}
-			<div class="center"><a class="waves-effect waves-light btn " href="{% url 'updatestockspage' %}">Atualizar<i class="fas fa-submit"></i></a></div>
 		</div>
 	</div>
 </div>
@@ -58,24 +57,22 @@
 			{% endif %}
 		</div>
 	</div>
-	<h4 class="center"><a class="waves-effect waves-light btn" href="{% url 'updatestockspage' %}">Atualizar<i class="fas fa-submit"></i></a></h4>
 </div>
 <div class="row">
 	{% for stock in stocks %}
 	<div class="col s12 m6 l3">
-		<a class="grey-text text-darken-4" href="{% url 'detailedstockpage' pk=stock.pk %}">
+		<a id="{{ stock.pk }}" class="grey-text text-darken-4" href="{% url 'detailedstockpage' pk=stock.pk %}">
 			{% if stock.change_percent > 0 %}
-			<div class="card green hoverable">
+			<div id="removable" class="card green hoverable">
 			{% elif stock.change_percent < 0%}
-			<div class="card red hoverable">
+			<div id="removable" class="card red hoverable">
 			{% else %}
-			<div class="card amber accent-4 hoverable">
+			<div id="removable" class="card amber accent-4 hoverable">
 			{% endif %}
 				<div class="">
-					{% comment %} <a href="{% url 'removestockpage' pk=stock.pk %}" class="grey-text text-darken-4 right"><i class="far fa-window-close"></i></a> {% endcomment %}
 					<h4 class="center"><b>{{stock.symbol}}</b></h4>
 				</div>
-				<div class="card-content">
+				<div class="card-content {{stock.pk}}">
 					<div class="row">
 						<div class="col s12 l6 center-align">
 							<span class="">Preço: <b>R${{stock.price}}</b></span>
@@ -105,5 +102,10 @@
 <script>alert("{{ message }}")</script> {% endif %}
 {% endfor %}
 {% endif %}
-{% comment %} <script src="{% static '/js/home2.js' %}"></script> {% endcomment %}
+{{ symbols|json_script:"symbols" }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+	const home_url = "{% url 'homepage' %}";
+</script>
+<script src="{% static '/js/home2.js' %}"></script>
 {% endblock content %}

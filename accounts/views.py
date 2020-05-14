@@ -8,7 +8,6 @@ from django.contrib import messages
 from .utilities import *
 import simplejson as json
 
-
 class forexView(View):
     model = None
 
@@ -105,26 +104,42 @@ class deleteWalletView(View):
         }
         return JsonResponse(data)
 
+class newhomeView(View):
+    model = Stock
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            symbol = str(request.GET.get('stock_symbol', None))
+            obj = get_Stock_Data(symbol)
+            db_query = Stock.objects.filter(symbol=symbol)
+            db_query.update(
+                price=obj['price'],
+                change_percent=obj['change_percent'],
+                updated=timezone.now()
+            )
+            obj['updated'] = timezone.now()
+            obj['pk'] = db_query[0].pk
+            obj['symbol'] = symbol
+            return JsonResponse(obj)
 
-
-def newhomeView(request):
-    st = Stock.objects.all()
-    atual = 0
-    antigo = 0
-    lucro = 0
-    for item in st:
-        atual = atual + item.price
-        antigo = antigo + (item.price/((item.change_percent/100)+1))
-        lucro = ((atual/antigo)-1)*100
-    lucro = round(lucro, 2)
-    obj = get_ibovespaData()
-
-    context = {
-        'stocks': st,
-        'lucro': lucro,
-        'obj': obj,
-    }
-    return render(request, 'accounts/home2.html', context)
+        obj = get_ibovespaData()
+        st = Stock.objects.all()
+        atual = 0
+        antigo = 0
+        lucro = 0
+        symbols = []
+        for item in st:
+            symbols.append(item.symbol)
+            atual = atual + item.price
+            antigo = antigo + (item.price/((item.change_percent/100)+1))
+            lucro = ((atual/antigo)-1)*100
+            lucro = round(lucro, 2)
+        context = {
+            'symbols': symbols,
+            'stocks': st,
+            'lucro': lucro,
+            'obj': obj,
+        }
+        return render(request, 'accounts/home2.html', context)
 
 
 def newstockView(request):
@@ -156,23 +171,6 @@ def newstockView(request):
         'stocks':stocks
     }
     return render(request, 'accounts/addStock.html', context)
-
-# UPDATE ALL STOCKS
-def updatestocksView(request):
-    # start = time.process_time()
-    stock = Stock.objects.all()
-    for item in stock:
-        obj = get_Stock_Data(item.symbol)
-        db_query = Stock.objects.filter(symbol=item.symbol)
-        db_query.update(
-            price=obj['price'],
-            change_percent=obj['change_percent'],
-            updated=timezone.now()
-        )
-    # print('Processamento de updatesstocsView: ' + str(time.process_time() - start))
-    messages.success(request, 'Seu portfólio foi atualizado com sucesso')
-    return redirect('homepage')
-
 
 def detailedstockView(request, pk):
     stocks = Stock.objects.all()
