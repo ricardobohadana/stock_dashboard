@@ -9,6 +9,7 @@ class StockSerializer(serializers.ModelSerializer):
 	price = serializers.FloatField(required=False)
 	updated = serializers.DateTimeField(required=False)
 	change_percent = serializers.FloatField(required=False)
+	favorite = serializers.BooleanField(required=False, default=False)
 
 	class Meta:
 		model = Stock
@@ -16,7 +17,8 @@ class StockSerializer(serializers.ModelSerializer):
 			'symbol',
 			'price',
 			'updated',
-			'change_percent'
+			'change_percent',
+			'favorite',
 		]
 
 	def create(self, validated_data):

@@ -26,6 +26,7 @@
 				<h4 class="amber accent-4 right"> {{ obj.change_percent }}%<i class="fas fa-minus"></i></h4>
 				<h4 class="amber accent-4 right">Ibovespa: {{ obj.price }}<i class="fas fa-minus"></i></h4>
 			{% endif %}
+			<div class="center"><a id="updateButton" class="waves-effect waves-light btn">Atualizar<i class="fas fa-submit"></i></a></div>
 		</div>
 	</div>
 </div>
@@ -57,52 +58,82 @@
 			{% endif %}
 		</div>
 	</div>
+	<div class="center"><a id="updateButton" class="waves-effect waves-light btn">Atualizar<i class="fas fa-submit"></i></a></div>
 </div>
 <div class="row">
 	{% for stock in stocks %}
-	<div class="col s12 m6 l3">
-		<a id="{{ stock.pk }}" class="grey-text text-darken-4" href="{% url 'detailedstockpage' pk=stock.pk %}">
-			{% if stock.change_percent > 0 %}
-			<div id="removable" class="card green hoverable">
-			{% elif stock.change_percent < 0%}
-			<div id="removable" class="card red hoverable">
-			{% else %}
-			<div id="removable" class="card amber accent-4 hoverable">
-			{% endif %}
-				<div class="">
-					<h4 class="center"><b>{{stock.symbol}}</b></h4>
-				</div>
-				<div class="card-content {{stock.pk}}">
-					<div class="row">
-						<div class="col s12 l6 center-align">
-							<span class="">Preço: <b>R${{stock.price}}</b></span>
-						</div>
-						<div class="col s12 l6 center-align">
-							{% if stock.change_percent > 0 %}
-								<span class=""> Variação: <span class="green "> <b>{{ stock.change_percent}}%</b> <i class="fas fa-long-arrow-alt-up"></i></span></span>
-							{% elif stock.change_percent < 0 %}
-								<span class=""> Variação: <span class="red "> <b>{{ stock.change_percent}}%</b> <i class="fas fa-long-arrow-alt-down"></i></span></span>
-							{% else %}
-								<span class=""> Variação: <span class="amber accent-4 "> <b>{{ stock.change_percent}}%</b> <i class="fas fa-minus"></i></span></span>
-							{% endif %}
-						</div>
-						<div class="col s12 l12 center-align">
-							<span><span class="">Atualização: </span><span class=""><b>{{ stock.updated }}</b></span></span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
+	<div class="col s12 m6 l3 grid">
+		<div id="{{ stock.pk }}" ></div>
 	</div>
 	{% endfor %}
 </div>
+<div id="footer-row" class="row">
+<div class="col s12 m6 l6"><h4 id="destaques"class="center">Destaques Positivos</h4></div>
+<div class="col s12 m6 l6"><h4 class="center hide-on-med-and-down">Destaques Negativos</h4></div>
+	<div class="col s12 m6 l3">
+		<table id="absolute-high" class="green darken-4 striped centered responsive-table">
+			<thead>
+				<tr>
+					<th>Ação</th>
+					<th>Preço</th>
+					<th>Variação Absoluta</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+	<div class="col s12 m6 l3">
+		<table id="relative-high" class="green darken-4 striped centered responsive-table">
+			<thead>
+				<tr>
+					<th>Ação</th>
+					<th>Preço</th>
+					<th>Variação Relativa</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+	<div class=""><h4 class="center hide-on-large-only">Destaques Negativos</h4></div>
+	<div class="col s12 m6 l3">
+		<table id="absolute-low" class="red darken-4 striped centered responsive-table">
+			<thead>
+				<tr>
+					<th>Ação</th>
+					<th>Preço</th>
+					<th>Variação Absoluta</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+	<div class="col s12 m6 l3">
+		<table id="relative-low" class="red darken-4 striped centered responsive-table">
+			<thead>
+				<tr>
+					<th>Ação</th>
+					<th>Preço</th>
+					<th>Variação Relativa</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+</div>
+	
+
 {% if messages %}
 {% for message in messages %}
 {% if message.tags %}
 <script>alert("{{ message }}")</script> {% endif %}
 {% endfor %}
 {% endif %}
-{{ symbols|json_script:"symbols" }}
+{{ symbols|json_script:"symbols" }}}
+{% csrf_token %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
 	const home_url = "{% url 'homepage' %}";

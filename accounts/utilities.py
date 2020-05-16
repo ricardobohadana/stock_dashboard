@@ -142,6 +142,27 @@ def updateWallet():
     return True
 
 
+def getAbsoluteHighLow():
+    high, low = [], []
+    for stock in Stock.objects.raw('SELECT * FROM accounts_stock WHERE change_percent > 0 ORDER BY change_percent DESC;'):
+        try:
+            price_change = round(stock.price - (stock.price/((stock.change_percent/100)+1)), 2)
+            high.append({"price_change": price_change, "symbol":stock.symbol, "price":stock.price})
+        except (IndexError, TypeError):
+            break
+
+    for stock in Stock.objects.raw('SELECT * FROM accounts_stock WHERE change_percent < 0 ORDER BY change_percent DESC;'):
+        try:
+            price_change = round(stock.price - (stock.price/((stock.change_percent/100)+1)),2)
+            low.append({'price_change': price_change, "symbol":stock.symbol, "price":stock.price})
+        except (IndexError, TypeError):
+            break
+    high_final = sorted(high, key=lambda k: k['price_change'], reverse=True)[:5]
+    low_final = sorted(low, key=lambda x: x['price_change'])[:5]
+    return high_final, low_final
+        
+
+
 # # REMOVE AS DUPLICATAS DE UMA LISTA
 # def check_2_remove(vet):
 #     for item in vet:

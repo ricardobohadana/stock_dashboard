@@ -21,19 +21,20 @@
   <body>
     <nav>
       <div class="nav-wrapper grey darken-3">
-        <a href="{% url 'homepage' %}" class="brand-logo center">Portfólio</a>
+        <a href="{% url 'homepage' %}" class="brand-logo right">Portfólio</a>
         <a href="#" data-target="slide-out" class="sidenav-trigger"
           ><i class="fas fa-bars"></i
         ></a>
         <ul id="nav-mobile" class="left hide-on-med-and-down">
-          <li><a href=""></a></li>
-          <li><a href=""></a></li>
-          <li><a href=""></a></li>
           <li class="sidenav-trigger" data-target="slide-out">
-            <a class="waves-effect waves-light btn-lg"
+            <a class=""
               ><i class="fas fa-bars"></i
             ></a>
           </li>
+          <li><a href="{% url 'addstockpage' %}"><i class="fas fa-plus"></i> ADICIONAR AÇÃO</a></li>
+          <li><a href="{% url 'walletpage' %}"><i class="fas fa-wallet"></i> SUA CARTEIRA</a></li>
+          <li><a href="{% url 'forexpage' %}"><i class="fas fa-dollar-sign"></i> CÂMBIO</a></li>
+          <li><a href="#destaques"><i class="far fa-lightbulb"></i> DESTAQUES</a></li>
         </ul>
       </div>
     </nav>
@@ -93,7 +94,7 @@
         </ul>
       </div>
     </ul>
-    <div class="background-img">
+    <div class="blue-grey lighten-4">
       {% block content %}
       <!-- Main content goes here -->
       {% endblock content %}
@@ -102,5 +103,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script src="{% static '/js/home.js' %}"></script>
 
-  <style></style>
+  <style>
+  </style>
 </html>

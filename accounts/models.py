@@ -9,6 +9,7 @@ class Stock(models.Model):
     price = models.FloatField()
     updated = models.DateTimeField(auto_now_add=True)
     change_percent = models.FloatField(default=0.0)
+    favorite = models.BooleanField(default=False);
 
     def __str__(self):
         return self.symbol

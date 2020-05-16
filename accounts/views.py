@@ -19,10 +19,6 @@ class forexView(View):
         return render(request, 'accounts/forex.html', context)
 
 
-
-
-
-
 class WalletView(View):
     model = Wallet
     template_name = 'accounts/wallet.html'
@@ -36,6 +32,7 @@ class WalletView(View):
             'wallet': wallet,
         }
         return render(request, 'accounts/wallet.html', context)
+
 
 class createWalletView(View):
     def get(self, request, *args, **kwargs):    
@@ -63,6 +60,7 @@ class createWalletView(View):
             'buy_price': obj.buy_price,
         }
         return JsonResponse(data)
+
 
 class updateWalletView(View):
     def get(self, request, *args, **kwargs):
@@ -104,25 +102,76 @@ class deleteWalletView(View):
         }
         return JsonResponse(data)
 
+
 class newhomeView(View):
     model = Stock
+    template_name = 'accounts/home2.html'
+    
+    def update_favorites(self, data):
+        id = int(data)
+        obj = Stock.objects.get(pk=id)
+        obj.favorite = not obj.favorite
+        obj.save()
+        context = {
+            "fav": obj.favorite,    
+        }
+        return context
+
+    def update_stocks(self, data):
+        symbol = str(data)
+        obj = get_Stock_Data(symbol)
+        if obj == 1:
+            return JsonResponse({"error":"error"})
+        db_query = Stock.objects.filter(symbol=symbol)
+        db_query.update(
+            price=obj['price'],
+            change_percent=obj['change_percent'],
+            updated=timezone.now()
+        )
+        obj['updated'] = timezone.now()
+        obj['pk'] = db_query[0].pk
+        obj['symbol'] = symbol
+        obj['favorite'] = db_query[0].favorite
+        return obj
+
+    def update_features(self, data):
+        stock_high = []
+        stock_low = []
+        stock_h = Stock.objects.order_by("-change_percent")
+        stock_l = Stock.objects.order_by("change_percent")
+        for i in range(len(stock_h)):
+            stock_high.append({
+                "symbol": stock_h[i].symbol,
+                "price": stock_h[i].price,
+                "change_percent": stock_h[i].change_percent,
+            })
+            stock_low.append({
+                "symbol": stock_l[i].symbol,
+                "price": stock_l[i].price,
+                "change_percent": stock_l[i].change_percent,
+            })
+        abs_high, abs_low = getAbsoluteHighLow()
+        print(stock_low)
+        return {
+            "highrel":stock_high[:5],
+            "highabs":abs_high,
+            "lowrel":stock_low[:-5],
+            "lowabs":abs_low,
+            }
+
+
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
-            symbol = str(request.GET.get('stock_symbol', None))
-            obj = get_Stock_Data(symbol)
-            db_query = Stock.objects.filter(symbol=symbol)
-            db_query.update(
-                price=obj['price'],
-                change_percent=obj['change_percent'],
-                updated=timezone.now()
-            )
-            obj['updated'] = timezone.now()
-            obj['pk'] = db_query[0].pk
-            obj['symbol'] = symbol
-            return JsonResponse(obj)
-
+            get_action = {
+                "update_favorites": self.update_favorites,
+                "update_stocks": self.update_stocks,
+                "update_features": self.update_features,
+                }
+            action = str(request.GET.get('action', None))
+            return JsonResponse(get_action[action](request.GET.get('data', None)))
         obj = get_ibovespaData()
-        st = Stock.objects.all()
+        st = Stock.objects.order_by('-favorite')
         atual = 0
         antigo = 0
         lucro = 0
@@ -139,8 +188,7 @@ class newhomeView(View):
             'lucro': lucro,
             'obj': obj,
         }
-        return render(request, 'accounts/home2.html', context)
-
+        return render(request, self.template_name, context)
 
 def newstockView(request):
     stocks = Stock.objects.all()
@@ -171,6 +219,7 @@ def newstockView(request):
         'stocks':stocks
     }
     return render(request, 'accounts/addStock.html', context)
+
 
 def detailedstockView(request, pk):
     stocks = Stock.objects.all()
