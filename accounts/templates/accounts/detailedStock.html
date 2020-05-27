@@ -1,96 +1,75 @@
 {% extends './home.html' %}
 {% load static %}
 {% block content %}
-{% comment %} <link rel="stylesheet" type="text/css" href="{% static '/css/detailedStock.css' %}"> {% endcomment %}
-<div class="bgimg">
-<div class="divider black"></div>
-<div class="col s12 m12 l12 grey darken-3">
-	<h4 class="center white-text">{{obj.symbol}}</h4 class="center white-text">
-</div>
-<div class="divider black"></div>
-<div class="row">
-	<div class="col s0 m1"></div>
-	<div class="col s12 m6">
-		<div class="row">
-			<div class="col m4"></div>
-			<div class="input-field col s12 m3">
-			{% csrf_token %}
-				<select>
-					<option value="7">1 Semana</option>
-					<option value="14">2 Semanas</option>
-					<option value="30">1 Mês</option>
-					<option value="90" selected>3 Meses</option>
-					<option value="180">6 Meses</option>
-					<option value="365">1 Ano</option>
-				</select>
-				<label>Selecione o intervalo</label>
+<div class="row m-2">
+	<div class="col-sm">
+		<div class="col-sm">
+			<div class="card mb-3">
+				<div class="card-header">
+					<h4 class="card-title">{{obj.symbol}}</h4>
+					{% csrf_token %}
+					<label for="select-range">Intervalo</label>
+					<select class="form-control" id="select-range">
+						<option value="7">1 Semana</option>
+						<option value="14">2 Semanas</option>
+						<option value="30">1 Mês</option>
+						<option value="90" selected>3 Meses</option>
+						<option value="180">6 Meses</option>
+						<option value="365">1 Ano</option>
+					</select>
+				</div>
+				<div class="card-body">
+					<canvas id="stockChart" style="position: relative; height: 38vh; width: 100%;"></canvas>
+				</div>
 			</div>
-			<div class="col m2"></div>
 		</div>
-		<div class="row">
-			<canvas id="stockChart" width="500" height="300"></canvas>
+		<div class="col-sm">
+			<div class="card">
+				<div class="card-body">
+					<canvas id="stockChartpercent" style="position: relative; height: 38vh; width: 100%;"></canvas>
+				</div>
+			</div>
 		</div>
-		<div class="row">
-			<canvas id="stockChartpercent" width="500" height="300"></canvas>
+	</div>
+	<div class="col-sm">
+		<div class="card">
+			<div class="card-header">
+				<h4>Histórico</h4>
+			</div>
+			<div class="card-body ov-h  table-responsive-sm">	
+				<table id="dataTable" class="table">
+					<thead>
+						<tr>
+							<th scope="col">Data</th>
+							<th scope="col">Valor</th>
+							<th scope="col">Variação</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in all_lists reversed %}
+						<tr>
+							<td>{{ item.1 }}</td>
+							<td class="">R$ {{ item.0 }}</td>
+							{% if item.2 > 0 %}
+							<td class="green-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-up"></i></td>
+							{% elif item.2 < 0%}
+							<td class="red-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-down"></i></td>
+							{% else %}
+							<td class="amber-text text-accent-4">{{ item.2 }}%<i class="fas fa-minus"></i></td>
+							{% endif %}
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
 		</div>
-		<div class="row">
-			<table class="striped centered">
-				<thead>
-					<tr>
-						<th>Indicador Responsável</th>
-						<th>Previsão</th>
-						<th>Variação</th>
-					</tr>
-				</thead>
-				<tbody>
-				{% for value in prev %}
-				<tr>
-					<td>Média Móvel de {{ value.2 }} Dias</td>
-					<td>{{ value.0 }}</td>
-					{% if value.0 > price %}
-					<td class="green-text">{{ value.1 }}% <i class="fas fa-long-arrow-alt-up"></i></td>
+	</div>
+</div>
 
-					{% elif value.0 < price %}
-					<td class="red-text">{{ value.1 }}% <i class="fas fa-long-arrow-alt-down"></i></td>
-					{% else %}
-					<td class="amber-text text-accent-4">{{ value.1 }}%<i class="fas fa-minus"></i></td>
-					{% endif %}
-				</tr>
-				{% endfor %}
-				</tbody>
-			</table>
-		</div>
-	</div>
-	<div class="col s10 m4">
-		<table class="striped centered">
-			<thead>
-				<tr>
-					<th>Data</th>
-					<th>Valor</th>
-					<th>Variação</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for item in all_lists reversed %}
-				<tr>
-					<td>{{ item.1 }}</td>
-					<td class="">R$ {{ item.0 }}</td>
-					{% if item.2 > 0 %}
-					<td class="green-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-up"></i></td>
-					{% elif item.2 < 0%}
-					<td class="red-text">{{ item.2 }}%<i class="fas fa-long-arrow-alt-down"></i></td>
-					{% else %}
-					<td class="amber-text text-accent-4">{{ item.2 }}%<i class="fas fa-minus"></i></td>
-					{% endif %}
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
-	<div class="col s0 m1"></div>
-</div>
-</div>
-</div>
+
+
+
+<!--  -->
 {{ variance|json_script:"variance" }}
 {{ labs|json_script:"labs" }}
 {{ stock|json_script:"stock" }}

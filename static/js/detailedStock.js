@@ -39,12 +39,6 @@ document.querySelector("select").addEventListener("change", (e) => {
   });
 });
 
-// Inicializando o elemnto <select>
-document.addEventListener("DOMContentLoaded", function () {
-  var elemens = document.querySelectorAll("select");
-  var instances = M.FormSelect.init(elemens);
-});
-
 // criando o gráfico
 var ctx = document.getElementById("stockChart").getContext("2d");
 var chart = new Chart(ctx, {
@@ -92,6 +86,8 @@ var chart = new Chart(ctx, {
 
   // Configuration options go here
   options: {
+    responsive: true,
+    maintainAspectRatio: false,
     scales: {
       xAxes: [
         {
@@ -164,6 +160,8 @@ var chart2 = new Chart(ctx, {
 
   // Configuration options go here
   options: {
+    maintainAspectRatio: false,
+    responsive: true,
     scales: {
       xAxes: [
         {

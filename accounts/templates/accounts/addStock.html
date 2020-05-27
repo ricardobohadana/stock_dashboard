@@ -1,50 +1,39 @@
 {% extends './home.html' %} {% load static %} {% block content %}
 
 <div class="row">
-  <form method="POST" class="col s12" autocomplete="off">
-    {% csrf_token %}
-    <div class="col s12 m2"></div>
-    <div class="col s12 m8">
-      <div class="card-panel">
-        <div class="row">
-          <div class="container">
-            <div class="row">
-              <div class="input-field col s12">
-                {{ form.symbol }}
-                <div id="match-list"></div>
-                <label for="search">Abreviação</label>
-                <span
-                  class="helper-text"
-                  data-error="wrong"
-                  data-success="right"
-                  >Digite a abreviação da sua ação aqui e clique em adicionar
-                  para vê-la em seu portfólio</span
-                >
-              </div>
-              <div class="row">
-                <div class="center text-white">
-                  <button
-                    type="submit"
-                    value=""
-                    class="waves-effect waves-light btn"
-                  >
-                    Adicionar<i class="fas fa-submit"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="container mt-5">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Adicionar nova ação ao portfólio</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST" class="col" autocomplete="off">
+          {% csrf_token %}
+          
+          <div class="form-group d-flex flex-column align-items-center">
+            <label for="id_symbol">Abreviação</label>
+            {{ form.symbol }}
+            <small id="abbr-help" class="form-text text-muted">Digite a abreviação da sua ação aqui e clique em
+              adicionar para vê-la em seu portfólio</small>
+              <button
+              type="submit"
+              value=""
+              class="btn btn-primary d-flex"
+              >
+              Adicionar<i class="fas fa-submit"></i>
+            </button>
+          </div>    
+        </form>
       </div>
     </div>
-    <div class="col s12 m2"></div>
-  </form>
+  </div>
 </div>
-{% if messages %} {% for message in messages %} {% if message.tags %}
-<script>
-  alert("{{ message }}");
-</script>
-{% endif %} {% endfor %} {% endif %}
-<script src="{% static '/js/addStock.js' %}"></script>
+  {% if messages %} {% for message in messages %} {% if message.tags %}
+  <script>
+    alert("{{ message }}");
+  </script>
+  {% endif %} {% endfor %} {% endif %}
+  <script src="{% static '/js/addStock.js' %}"></script>
 
-{% endblock content %}
+  {% endblock content %}
+</div>

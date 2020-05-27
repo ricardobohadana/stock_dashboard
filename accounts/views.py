@@ -1,3 +1,4 @@
+from accounts.api.serializers import StockSerializer, WalletSerializer
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
@@ -120,6 +121,10 @@ class newhomeView(View):
     def update_stocks(self, data):
         symbol = str(data)
         obj = get_Stock_Data(symbol)
+        labs, datas, variance, prev = get_historicalData(symbol, 60)
+        SMA_14d = datas[1][-1]
+        SMA_30d = datas[2][-1]
+
         if obj == 1:
             return JsonResponse({"error":"error"})
         db_query = Stock.objects.filter(symbol=symbol)
@@ -128,36 +133,37 @@ class newhomeView(View):
             change_percent=obj['change_percent'],
             updated=timezone.now()
         )
-        obj['updated'] = timezone.now()
         obj['pk'] = db_query[0].pk
         obj['symbol'] = symbol
         obj['favorite'] = db_query[0].favorite
+        obj['SMA_30'] = SMA_30d
+        obj['SMA_14'] = SMA_14d
         return obj
 
-    def update_features(self, data):
-        stock_high = []
-        stock_low = []
-        stock_h = Stock.objects.order_by("-change_percent")
-        stock_l = Stock.objects.order_by("change_percent")
-        for i in range(len(stock_h)):
-            stock_high.append({
-                "symbol": stock_h[i].symbol,
-                "price": stock_h[i].price,
-                "change_percent": stock_h[i].change_percent,
-            })
-            stock_low.append({
-                "symbol": stock_l[i].symbol,
-                "price": stock_l[i].price,
-                "change_percent": stock_l[i].change_percent,
-            })
-        abs_high, abs_low = getAbsoluteHighLow()
-        print(stock_low)
-        return {
-            "highrel":stock_high[:5],
-            "highabs":abs_high,
-            "lowrel":stock_low[:-5],
-            "lowabs":abs_low,
-            }
+    # def update_features(self, data):
+    #     stock_high = []
+    #     stock_low = []
+    #     stock_h = Stock.objects.order_by("-change_percent")
+    #     stock_l = Stock.objects.order_by("change_percent")
+    #     for i in range(len(stock_h)):
+    #         stock_high.append({
+    #             "symbol": stock_h[i].symbol,
+    #             "price": stock_h[i].price,
+    #             "change_percent": stock_h[i].change_percent,
+    #         })
+    #         stock_low.append({
+    #             "symbol": stock_l[i].symbol,
+    #             "price": stock_l[i].price,
+    #             "change_percent": stock_l[i].change_percent,
+    #         })
+    #     abs_high, abs_low = getAbsoluteHighLow()
+    #     print(stock_low)
+    #     return {
+    #         "highrel":stock_high[:5],
+    #         "highabs":abs_high,
+    #         "lowrel":stock_low[:-5],
+    #         "lowabs":abs_low,
+    #         }
 
 
 
@@ -166,26 +172,24 @@ class newhomeView(View):
             get_action = {
                 "update_favorites": self.update_favorites,
                 "update_stocks": self.update_stocks,
-                "update_features": self.update_features,
+                # "update_features": self.update_features,
                 }
             action = str(request.GET.get('action', None))
             return JsonResponse(get_action[action](request.GET.get('data', None)))
         obj = get_ibovespaData()
         st = Stock.objects.order_by('-favorite')
-        atual = 0
-        antigo = 0
-        lucro = 0
-        symbols = []
-        for item in st:
-            symbols.append(item.symbol)
-            atual = atual + item.price
-            antigo = antigo + (item.price/((item.change_percent/100)+1))
-            lucro = ((atual/antigo)-1)*100
-            lucro = round(lucro, 2)
+        favorites = [stock.symbol for stock in Stock.objects.filter(favorite=True)]
+        # atual = 0
+        # antigo = 0
+        # lucro = 0
+        serializer = StockSerializer(Stock.objects.all(), many=True)
+        symbols = [stock.symbol for stock in Stock.objects.order_by('-favorite')]
         context = {
             'symbols': symbols,
+            'favorites': favorites,
             'stocks': st,
-            'lucro': lucro,
+            'stocks_json':serializer.data,
+            # 'lucro': lucro,
             'obj': obj,
         }
         return render(request, self.template_name, context)

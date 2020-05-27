@@ -4,105 +4,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Compiled and minified CSS -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+      rel="stylesheet"
+    />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
     />
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"
+    ></script>
     <link rel="stylesheet" type="text/css" href="{% static '/css/home.css'%}" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../../../static/css/home.css"
+    />
     <script
       src="https://kit.fontawesome.com/034b561e46.js"
       crossorigin="anonymous"
     ></script>
 
-    <title>Stock Dashboard</title>
+    <title>RM Investimentos</title>
   </head>
 
   <body>
-    <nav>
-      <div class="nav-wrapper grey darken-3">
-        <a href="{% url 'homepage' %}" class="brand-logo right">Portfólio</a>
-        <a href="#" data-target="slide-out" class="sidenav-trigger"
-          ><i class="fas fa-bars"></i
-        ></a>
-        <ul id="nav-mobile" class="left hide-on-med-and-down">
-          <li class="sidenav-trigger" data-target="slide-out">
-            <a class=""
-              ><i class="fas fa-bars"></i
-            ></a>
-          </li>
-          <li><a href="{% url 'addstockpage' %}"><i class="fas fa-plus"></i> ADICIONAR AÇÃO</a></li>
-          <li><a href="{% url 'walletpage' %}"><i class="fas fa-wallet"></i> SUA CARTEIRA</a></li>
-          <li><a href="{% url 'forexpage' %}"><i class="fas fa-dollar-sign"></i> CÂMBIO</a></li>
-          <li><a href="#destaques"><i class="far fa-lightbulb"></i> DESTAQUES</a></li>
-        </ul>
-      </div>
-    </nav>
-    <ul id="slide-out" class="sidenav">
-      <li>
-        <div class="divider"></div>
-      </li>
-      <li><a class="subheader">Menu</a></li>
-      <li>
-        <a href="{% url 'homepage' %}" class="waves-effect"
-          ><i class="far fa-star"></i>Home</a
-        >
-      </li>
-      <div class="adicionar">
-        <li>
-          <a class="waves-effect" href="{% url 'addstockpage' %}"
-            ><i class="fas fa-plus"></i> Adicionar ação</a
-          >
-        </li>
-      </div>
-      <div class="adicionar">
-        <li>
-          <a class="waves-effect" href="{% url 'walletpage' %}"
-            ><i class="fas fa-wallet"></i>Modificar Carteira</a
-          >
-        </li>
-      </div>
-      <div class="adicionar">
-        <li>
-          <a class="waves-effect" href="{% url 'forexpage' %}"
-            ><i class="fas fa-dollar-sign"></i>BRL - USD</a
-          >
-        </li>
-      </div>
-      <li>
-        <div class="divider"></div>
-      </li>
-      <div class="ações">
-        <li><a class="subheader">Suas ações</a></li>
-        <ul class="collection with-header">
-          {% for stock in stocks %}
-          <li class="collection-item">
-            <div>
-              <a
-                class="waves-effect black-text"
-                href="{% url 'detailedstockpage' pk=stock.pk %}"
-                >{{ stock.symbol }}</a
-              >
-              <a
-                href="{% url 'removestockpage' pk=stock.pk %}"
-                class="secondary-content"
-                ><i class="far fa-window-close"></i
-              ></a>
-            </div>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </ul>
-    <div class="blue-grey lighten-4">
-      {% block content %}
-      <!-- Main content goes here -->
-      {% endblock content %}
+    <div class="landing-page">
+      <h1><span class="brand-title">RM</span> INVESTIMENTOS</h1>
+      <p>O seu site de ações</p>
     </div>
-  </body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script src="{% static '/js/home.js' %}"></script>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarTogglerDemo03"
+        aria-controls="navbarTogglerDemo03"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <ul class="collapse navbar-collapse navbar-nav" id="navbarTogglerDemo03">
+        <li class="nav-item">
+          <a href="{% url 'homepage' %}" class="nav-link active" id="dashboard">DASHBOARD</a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'walletpage' %}" class="nav-link" id="wallet">CARTEIRA</a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'forexpage' %}" class="nav-link" id="forex">CÂMBIO</a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'addstockpage' %}" class="nav-link" id="addStock">ADICIONAR AÇÃO</a>
+        </li>
+      </ul>
+      <a href="{% url 'homepage' %}" class="navbar-brand"><span>RM</span> INVESTIMENTOS</a>
+    </nav>
+    {% block content %} {% endblock content %}
 
-  <style>
-  </style>
+    <script src="{% static '/js/home.js' %}"></script>
+  </body>
+
+  <style></style>
 </html>

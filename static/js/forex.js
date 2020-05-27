@@ -1,3 +1,7 @@
+// Update navbar active item
+document.getElementById("forex").classList.add("active");
+document.getElementById("dashboard").classList.remove("active");
+
 // API KEY
 var apikey = "JLXK7AOR79EQNKJ5";
 // EXECUTING FUNCTION
@@ -51,7 +55,10 @@ function createChartvalues(label, dataset) {
     },
 
     // Configuration options go here
-    options: {},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+    },
   });
 }
 function createChartpercent(label, dataset) {
@@ -98,7 +105,10 @@ function createChartpercent(label, dataset) {
     },
 
     // Configuration options go here
-    options: {},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+    },
   });
 }
 
@@ -111,34 +121,23 @@ function createrowData(labels, dataset) {
     total_profit.push(prof);
   }
   for (var i = dataset.length - 1; i > -1; i--) {
+    let iconClass;
+    let changeClass;
     if (total_profit[i] > 0) {
-      $("#dataTable > tbody:last-child").append(`
-        <tr id="wallet-table-total">
-          <td class=""><b>${labels[i]}</b></td>
-
-          <td class=""><b>R$ ${dataset[i]}</b></td>
-          <td class="green-text"><b>${total_profit[i]}%<i class="fas fa-long-arrow-alt-up"></i></b></td>
-        </tr>  
-      `);
-    } else if (total_profit[i] < 0) {
-      $("#dataTable > tbody:last-child").append(`
-      <tr id="wallet-table-total">
-        <td class=""><b>${labels[i]}</b></td>
-        <td class=""><b>R$ ${dataset[i]}</b></td>
-        <td class="red-text"><b>${total_profit[i]}%<i class="fas fa-long-arrow-alt-down"></i></b></td>
-      </tr>  
-    `);
+      iconClass = "fas fa-arrow-up";
+      changeClass = "positive-change";
     } else {
-      $("#dataTable > tbody:last-child").append(`
+      iconClass = "fas fa-arrow-down";
+      changeClass = "negative-change";
+    }
+    $("#dataTable > tbody:last-child").append(`
         <tr id="wallet-table-total">
-          <td class=""><b>${labels[i]}</b></td>
+          <td scope="col"><b>${labels[i]}</b></td>
 
-
-          <td class=""><b>R$ ${dataset[i]}</b></td>
-          <td class="amber-text"><b>${total_profit[i]}%<i class="fas fa-minus"></i></b></td>
+          <td scope="row"><b>R$ ${dataset[i]}</b></td>
+          <td scope="row"><span class="${changeClass}"><i class="${iconClass}"></i> <b>${total_profit[i]}%</b></span></td>
         </tr>  
       `);
-    }
   }
   total_profit[0] = null;
   createChartpercent(labels, total_profit);

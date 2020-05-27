@@ -2,40 +2,39 @@
 {% load static %}
 
 {% block content %}
-<div class="bgimg">
-<div class="divider black"></div>
-<div class="col s12 m12 l12 grey darken-3">
-	<h4 class="center white-text">{{obj.symbol}}</h4 class="center white-text">
-</div>
-<div class="divider black"></div>
-<div class="row">
-	<div class="col s12 m7">
-		<div class="row">
-			<div class="col m4"></div>
-			<div class="input-field col s12 m3">
+<div class="row mb-2">
+	<div class="col-sm">
+		<div class="col-sm">
+			<div class="card mb-2 mt-2">
+				<canvas id="forexChart" style="position: relative; height: 38vh; width: 100%;"></canvas>
 			</div>
-			<div class="col m2"></div>
 		</div>
-		<div class="row">
-			<canvas id="forexChart" width="500" height="300"></canvas>
-		</div>
-		<div class="row">
-			<canvas id="forexChartpercent" width="500" height="300"></canvas>
+		<div class="col-sm mb-2">
+			<div class="card">
+				<canvas id="forexChartpercent" style="position: relative; height: 38vh; width: 100%;"></canvas>
+			</div>
 		</div>
 	</div>
-	<div class="col s10 m5">
-		<table id="dataTable" class="striped centered responsive-table">
-			<thead>
-				<tr>
-					<th>Data</th>
-					<th>Valor</th>
-					<th>Variação</th>
-				</tr>
-			</thead>
-			<tbody>
+	<div class="col-sm m-2">
+		<div class="card">
+			<div class="card-header">
+				<h4>Histórico</h4>
+			</div>
+			<div class="card-body ov-h  table-responsive-sm">	
+				<table id="dataTable" class="table">
+					<thead>
+						<tr>
+							<th scope="col">Data</th>
+							<th scope="col">Valor</th>
+							<th scope="col">Variação</th>
+						</tr>
+					</thead>
+					<tbody>
 
-			</tbody>
-		</table>
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>

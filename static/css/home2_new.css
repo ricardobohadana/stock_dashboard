@@ -1,0 +1,15 @@
+div.page-wrapper {
+  padding: 1rem;
+  margin: 1rem 1rem;
+}
+
+@media only screen and (max-width: 500px) {
+  div.page-wrapper {
+    padding: 0.5rem;
+    margin: 1rem 1rem;
+  }
+}
+
+table td {
+  padding: 0.4rem !important;
+}

@@ -1,11 +1,11 @@
+// Update navbar active item
+document.getElementById("wallet").classList.add("active");
+document.getElementById("dashboard").classList.remove("active");
+
 // Create row Total at the load of the page
 createrowTotal();
 
 // Initialize modal
-document.addEventListener("DOMContentLoaded", function () {
-  var elems = document.querySelectorAll(".modal");
-  var instances = M.Modal.init(elems);
-});
 
 // Get CSRFTOKEN for 'POST' requests and set it up with all ajax calls
 // var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
@@ -14,10 +14,6 @@ document.addEventListener("DOMContentLoaded", function () {
 //     xhr.setRequestHeader("X-CSRFToken", csrftoken);
 //   },
 // });
-document.addEventListener("DOMContentLoaded", function () {
-  var elemens = document.querySelectorAll("select");
-  var instances = M.FormSelect.init(elemens);
-});
 
 // Append created item to wallet table
 function appendWalletToTable(wallet) {
@@ -29,12 +25,12 @@ function appendWalletToTable(wallet) {
 			<td class="stock-price">R$ ${wallet.stock_price}</td>
 			<td class="stock-money-amount">R$ ${wallet.money_amount}</td>
 			<td class="">${(wallet.money_amount / wallet.investment - 1) * 100} %</td>
-			<td><button onClick="editWallet('${
+			<td><button data-toggle="modal" onClick="editWallet('${
         wallet.stocksymbol
-      }')" class="waves-effect waves-light btn modal-trigger" href="#modal1">EDITAR</button></td>
+      }')" class="btn btn-primary" href="#modal1">EDITAR</button></td>
 			<td><button onClick="deleteWallet('${
         wallet.pk
-      }')" class="waves-effect waves-light btn" href="#modal1">LIQUIDAR</button></td>
+      }')" class="waves-effect waves-light btn">LIQUIDAR</button></td>
 		</tr>
 	`);
 }
@@ -75,7 +71,7 @@ function editWallet(symbol) {
       $("#stock-title").contents().remove();
     }
     symbol.toString();
-    $("#stock-title").append(`${symbol}`);
+    $("#stock-title").append(` ${symbol}`);
   }
 }
 
