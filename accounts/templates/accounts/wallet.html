@@ -11,6 +11,7 @@
       <table id="walletTable" class="table">
         <thead>
           <tr>
+            <th>Proprietário</th>
             <th>Ativo</th>
             <th>Quantidade</th>
             <th>Investimento Inicial</th>
@@ -20,16 +21,27 @@
           </tr>
         </thead>
         <tbody>
-          {% if wallet %} {% for item in wallet %}
+          {% if wallet %}
+          {% for item in wallet %}
           <tr id="wallet-{{item.pk}}">
+            <td class="stock-owner">{{item.owner}}</td>
             <td class="stock-symbol">{{item.stock.symbol}}</td>
             <td class="stock-amount">{{item.stock_amount}}</td>
             <td class="stock-investment">R$ {{item.investment}}</td>
             <td class="stock-price">R$ {{item.stock.price}}</td>
             <td class="stock-money-amount">R$ {{item.money_amount}}</td>
-            <td class="stock-change-percent">
-              {{item.money_amount|changePercent:item.investment }} %
+            {% with percent=item.money_amount|changePercent:item.investment  %}
+            {% if percent > 0 %}
+            <td class="stock-change-percent positive-change">
+              {{ percent }} %
             </td>
+            {% else %}
+            <td class="stock-change-percent negative-change">
+              {{ percent }} %
+            </td>
+
+            {% endif %}
+            {% endwith %}
             {% comment %} Modal Trigger {% endcomment %}
             <td>
               <button
@@ -90,7 +102,7 @@
 								class="form-control"
 								id="buy-price"
 								required
-							/>
+							/   >
 						</div>
 						<div class="col-6 mt-3 d-flex justify-content-center">
 							<button type="submit" class="btn btn-primary">Submit</button>
@@ -125,6 +137,16 @@
               {% for stock in stocks %}
               <option value="{{stock.pk}}">{{ stock.symbol }}</option>
               {% endfor %}
+            </select>
+          </div>
+          <div class="col-6 mt-3">
+            <label for="select-owner">Proprietário</label>
+            <select name="owner" class="form-control" id="select-owner" required>
+              <option value="" disabled selected>Proprietário das ações</option>
+              <option value="Caco">Caco</option>
+              <option value="Ricardo">Ricardo</option>
+              <option value="Itala">Itala</option>
+              <option value="Thayssa">Thayssa</option>
             </select>
           </div>
           <div class="col-6 mt-3">
@@ -170,4 +192,9 @@
   const delete_url = "{% url 'deletewalletpage' %}";
 </script>
 <script src="{% static '/js/wallet_new.js' %}"></script>
+<script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"
+    ></script>
 {% endblock content%}

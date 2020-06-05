@@ -1,0 +1,97 @@
+{% extends './home.html' %} {% load static %} {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static '/css/query.css' %}" />
+<div class="col">
+  <div class="container mt-5">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Consultar ação</h4>
+      </div>
+      <div class="card-body">
+        {% csrf_token %}
+        <form id="query-form" action="GET">
+          <div class="form-group d-flex flex-column align-items-center">
+            <label for="stock-symbol">Abreviação</label>
+            <input type="text" class="form-control" id="stock-symbol" />
+            <small id="abbr-help" class="form-text text-muted"
+              >Digite a abreviação da ação aqui e clique em consultar para ver
+              mais informações sobre o ativo</small
+            >
+            <button
+              id="query-btn"
+              type="submit"
+              class="btn btn-primary d-flex mt-3"
+            >
+              CONSULTAR
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="loading-bar"></div>
+<div class="row m-2">
+  <div class="col-sm-8">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4 class="card-title" id="stock"></h4>
+        <label for="select-range">Intervalo</label>
+        <select class="form-control" id="select-range">
+          <option value="7">1 Semana</option>
+          <option value="14">2 Semanas</option>
+          <option value="30">1 Mês</option>
+          <option value="90">3 Meses</option>
+          <option value="180" selected>6 Meses</option>
+          <option value="365">1 Ano</option>
+        </select>
+      </div>
+      <div class="card-body">
+        <div
+          id="stockChart"
+          style="position: relative; height: 38vh; width: 100%;"
+        ></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div
+          id="stockChartpercent"
+          style="position: relative; height: 38vh; width: 100%;"
+        ></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm">
+    <div class="card">
+      <div class="card-header">
+        <h4>Histórico</h4>
+      </div>
+      <div class="card-body ov-h table-responsive-sm">
+        <table id="dataTable" class="table">
+          <thead>
+            <tr>
+              <th scope="col">Data</th>
+              <th scope="col">Valor</th>
+              <th scope="col">Variação</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% if messages %} {% for message in messages %} {% if message.tags %}
+<script>
+  alert("{{ message }}");
+</script>
+{% endif %} {% endfor %} {% endif %}
+<script>
+  const query_url = "{% url 'querypage' %}";
+</script>
+<script src="{% static '/js/query.js' %}"></script>
+
+{% endblock content %}

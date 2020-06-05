@@ -10,7 +10,6 @@ from accounts.models import Stock, Wallet
 from accounts.api.serializers import StockSerializer, WalletSerializer
 
 
-
 class ApiOverview(APIView):
   def get(self, request):
     context = {
@@ -49,7 +48,7 @@ class StockApiView(APIView):
 
 
 class StockApiDetailView(APIView):
-  def get_object(self, request, id):
+  def get_object(self, id):
     try:
       return Stock.objects.get(pk=id)
     except:

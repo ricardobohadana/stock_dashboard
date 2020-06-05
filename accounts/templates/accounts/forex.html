@@ -3,15 +3,15 @@
 
 {% block content %}
 <div class="row mb-2">
-	<div class="col-sm">
+	<div class="col-sm-8">
 		<div class="col-sm">
 			<div class="card mb-2 mt-2">
-				<canvas id="forexChart" style="position: relative; height: 38vh; width: 100%;"></canvas>
+				<div class="card-body" id="forexChart" style="position: relative; height: 38vh; width: 100%;"></div>
 			</div>
 		</div>
 		<div class="col-sm mb-2">
 			<div class="card">
-				<canvas id="forexChartpercent" style="position: relative; height: 38vh; width: 100%;"></canvas>
+				<div class="card-body" id="forexChartpercent" style="position: relative; height: 38vh; width: 100%;"></div>
 			</div>
 		</div>
 	</div>
@@ -20,7 +20,7 @@
 			<div class="card-header">
 				<h4>Histórico</h4>
 			</div>
-			<div class="card-body ov-h  table-responsive-sm">	
+			<div class="card-body ov-h table-responsive-sm">	
 				<table id="dataTable" class="table">
 					<thead>
 						<tr>
@@ -37,7 +37,7 @@
 		</div>
 	</div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="{% static '/js/forex.js' %}"></script>
 {% endblock content %}

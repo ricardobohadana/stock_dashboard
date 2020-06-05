@@ -9,6 +9,79 @@ from django.contrib import messages
 from .utilities import *
 import simplejson as json
 
+class bvspView(View):
+    model = None
+    template_name = 'accounts/bvsp.html'
+
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            ndays = int(request.GET.get('value', None))
+            return JsonResponse(getHistoricalIbovespa(ndays))
+            
+        ibov = getHistoricalIbovespa()
+        context = {
+            'ibov': ibov
+        }
+        return render(request, self.template_name, context)
+
+
+
+
+class queryView(View):
+    model = None
+    template_name = 'accounts/query.html'
+
+    def query(self, symbol):
+        labs, datas, variance, prev = get_historicalData(symbol)
+        all_lists = []
+        for i in range(0, len(variance)):
+            all_lists.append([datas[0][3][i], labs[i], variance[i]])
+        context = {
+            # 'price': price,
+            'symbol': symbol,
+            'mean': prev,
+            'stock': datas[0],
+            'sma15': datas[1],
+            'labs': labs,
+            'variance': variance,
+            'all_lists': all_lists,
+        }
+        return context
+
+
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            ndays = int(request.POST.get('range'))
+            symbol = str(request.POST.get('symbol'))
+            labs, datas, variance, prev = get_historicalData(symbol, ndays)
+            all_lists = []
+            for i in range(0, len(variance)):
+                all_lists.append([datas[0][3][i], labs[i], variance[i]])
+            context = {
+                # 'price': price,
+                'symbol': symbol,
+                'mean': prev,
+                'stock': datas[0],
+                'sma15': datas[1],
+                'labs': labs,
+                'variance': variance,
+                'all_lists': all_lists,
+            }
+            return JsonResponse(context)
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            get_action = {
+                'query': self.query,
+            }
+            action = str(request.GET.get('action', None))
+            return JsonResponse(get_action[action](request.GET.get('data', None)))
+
+        context = {}
+        return render(request, self.template_name, context)
+
+
 class forexView(View):
     model = None
 
@@ -53,7 +126,7 @@ class createWalletView(View):
         obj.save()
         data = {
             'pk': obj.pk,
-            'stocksymbol': obj.stock.symbol,
+            'stock_symbol': obj.stock.symbol,
             'stock_price': obj.stock.price,
             'stock_amount': obj.stock_amount,
             'investment': obj.investment,
@@ -65,7 +138,7 @@ class createWalletView(View):
 
 class updateWalletView(View):
     def get(self, request, *args, **kwargs):
-        symbol = request.GET.get('stock_symbol', None)
+        symbol = str(request.GET.get('stock_symbol', None))
         stock_amount = int(request.GET.get('stock_amount', None))
         buy_price = float(request.GET.get('buy_price', None))
         stock = Stock.objects.filter(symbol=symbol)
@@ -73,7 +146,7 @@ class updateWalletView(View):
         wallet = Wallet.objects.filter(stock=stock.pk)
         stock_amount_new = (stock_amount + wallet[0].stock_amount)
         investment_new = wallet[0].investment + (buy_price * stock_amount)
-        buy_price_new = ((stock_amount*buy_price)*(wallet[0].stock_amount * wallet[0].buy_price))/(stock_amount + wallet[0].stock_amount)
+        buy_price_new = ((stock_amount*buy_price)+(wallet[0].stock_amount * wallet[0].buy_price))/(stock_amount + wallet[0].stock_amount)
         money_amount_new = stock_amount_new*stock.price
         wallet.update(
             investment=investment_new,
@@ -121,7 +194,7 @@ class newhomeView(View):
     def update_stocks(self, data):
         symbol = str(data)
         obj = get_Stock_Data(symbol)
-        labs, datas, variance, prev = get_historicalData(symbol, 60)
+        labs, datas, variance, prev = get_historicalData(symbol)
         SMA_14d = datas[1][-1]
         SMA_30d = datas[2][-1]
 
@@ -234,7 +307,7 @@ def detailedstockView(request, pk):
         labs, datas, variance, prev = get_historicalData(obj.symbol, ndays)
         all_lists = []
         for i in range(0, len(variance)):
-            all_lists.append([datas[0][i], labs[i], variance[i]])
+            all_lists.append([datas[0][3][i], labs[i], variance[i]])
         price = datas[0][-1]
         context = {
             'price': price,
@@ -251,11 +324,11 @@ def detailedstockView(request, pk):
         return HttpResponse(json.dumps(context), content_type="application/json")
     
     
-    labs, datas, variance, prev = get_historicalData(obj.symbol, 90)
+    labs, datas, variance, prev = get_historicalData(obj.symbol)
 
     all_lists = []
     for i in range(0, len(variance)):
-        all_lists.append([datas[0][i], labs[i], variance[i]])
+        all_lists.append([datas[0][3][i], labs[i], variance[i]])
     price = datas[0][-1]
     context = {
         'stocks': stocks,

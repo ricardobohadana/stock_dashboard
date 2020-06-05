@@ -46,10 +46,7 @@
   </head>
 
   <body>
-    <div class="landing-page">
-      <h1><span class="brand-title">RM</span> INVESTIMENTOS</h1>
-      <p>O seu site de ações</p>
-    </div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <button
@@ -76,10 +73,17 @@
         <li class="nav-item">
           <a href="{% url 'addstockpage' %}" class="nav-link" id="addStock">ADICIONAR AÇÃO</a>
         </li>
+        <li class="nav-item">
+          <a href="{% url 'querypage' %}" class="nav-link" id="query">CONSULTA</a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'ibovpage' %}" class="nav-link" id="ibovespa">IBOVESPA</a>
+        </li>
       </ul>
       <a href="{% url 'homepage' %}" class="navbar-brand"><span>RM</span> INVESTIMENTOS</a>
     </nav>
-    {% block content %} {% endblock content %}
+    {% block content %}
+    {% endblock content %}
 
     <script src="{% static '/js/home.js' %}"></script>
   </body>

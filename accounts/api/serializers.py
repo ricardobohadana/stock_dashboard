@@ -58,6 +58,7 @@ class WalletSerializer(serializers.ModelSerializer):
 			'buy_price',
 			'investment',
 			'money_amount',
+			'owner',
 		]
 
 	def create(self, validated_data):
@@ -74,6 +75,7 @@ class WalletSerializer(serializers.ModelSerializer):
 			buy_price=validated_data['buy_price'],
 			money_amount=validated_data['money_amount'],
 			investment=validated_data['investment'],
+			owner=validated_data['owner'],
 		)
 		instance.save()
 		return instance

@@ -5,8 +5,7 @@
 	<div class="col-md-8">
 			<div class="card mb-3">
 				<div class="card-header">
-					<h4 class="card-title">{{obj.symbol}}</h4>
-					{% csrf_token %}
+					<h4 class="card-title">Ibovespa</h4>
 					<label for="select-range">Intervalo</label>
 					<select class="form-control" id="select-range">
 						<option value="7">1 Semana</option>
@@ -42,17 +41,6 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% for item in all_lists reversed %}
-						<tr>
-							<td>{{ item.1 }}</td>
-							<td class="">R$ {{ item.0 }}</td>
-							{% if item.2 > 0 %}
-							<td class="positive-change">{{ item.2 }}%<i class="fas fa-arrow-up"></i></td>
-							{% else %}
-							<td class="negative-change">{{ item.2 }}%<i class="fas fa-arrow-down"></i></td>
-							{% endif %}
-						</tr>
-						{% endfor %}
 					</tbody>
 				</table>
 			</div>
@@ -64,19 +52,13 @@
 
 
 <!--  -->
-{{ variance|json_script:"variance" }}
-{{ labs|json_script:"labs" }}
-{{ stock|json_script:"stock" }}
-{{ sma15|json_script:"sma15" }}
-{{ sma30|json_script:"sma30" }}
-{{ sma60|json_script:"sma60" }}
-{{ obj.symbol|json_script:"symbol" }}
-{% comment %} <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> {% endcomment %}
+
+{{ ibov|json_script:"ibov" }}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="{% static '/js/detailedStock.js' %}"></script>
+<script src="{% static '/js/bvsp.js' %}"></script>
 <script>
-	const detailed_url = "{% url 'detailedstockpage' pk=obj.pk %}";
+	const ibov_url = "{% url 'ibovpage' %}";
 	
 </script>
 {% endblock content %}

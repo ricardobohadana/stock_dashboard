@@ -66,7 +66,7 @@ def get_Stock_Data(symbol):
 
 
 # ADQUIRE OS DADOS HISTÓRICOS DE 180 DIAS
-def get_historicalData(symbol, ndays):
+def get_historicalData(symbol, ndays=180):
     today = datetime.today().strftime("%Y-%m-%d")
     days_180 = (datetime.today() - timedelta(ndays)).strftime("%Y-%m-%d")
     df = web.DataReader(symbol.upper()+'.SA', data_source='yahoo', start=days_180, end=today)
@@ -81,7 +81,7 @@ def get_historicalData(symbol, ndays):
     df, prev = get_SMA(df)    
     variance = round((((df.Close.values[1]/df.Close.values[0])-1)*100), 2)
     datas = [[],[],[],[]]
-    datas[0] = [round(pr, 2) for pr in df.Close.tolist()]
+    datas[0] = [[round(pr, 2) for pr in df.Open.tolist()], [round(pr, 2) for pr in df.High.tolist()],[round(pr, 2) for pr in df.Low.tolist()],[round(pr, 2) for pr in df.Close.tolist()]]
     datas[1] = [None if math.isnan(s) else round(s, 2) for s in df['SMA(14)'].tolist()]
     datas[2] = [None if math.isnan(r) else round(r, 2) for r in df['SMA(30)'].tolist()]
     datas[3] = [None if math.isnan(t) else round(t, 2) for t in df['SMA(7)'].tolist()]
@@ -93,28 +93,41 @@ def get_historicalData(symbol, ndays):
 
 # PEGA OS ÍNDICES DA IBOVESPA
 def get_ibovespaData():
-    url = 'https://finance.yahoo.com/quote/%5EBVSP?p=^BVSP&.tsrc=fin-srch'
-    r = requests.get(url)
-    if r.status_code != 200:
-        print('Status code error')
-        return 1
-    sp = BeautifulSoup(r.text, "lxml")
     try:
-        vet = sp.find('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}).find_all('span')
-        price = float((vet[0].text.replace(',','')))
-        change_points = vet[1].text.split(' ')[0].replace(',','')
-        change_percentage = float(vet[1].text.split(' ')[1][1:6])
-    except ValueError:
-        change_percentage = float(vet[1].text.split(' ')[1][2:6])
-    except AttributeError:
-        return 1
-    # updated = vet[2].text[11:17]
-    jsobj = {
-        'price': price,
-        'change_percent': change_percentage,
-        'change_points': change_points,
-    }
-    return jsobj
+        today = datetime.today().strftime("%Y-%m-%d")
+        yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+        df = web.DataReader('^BVSP', data_source='yahoo', start=yesterday, end=today)
+        change_percent = round( ((df.Close[-1]/df.Close[0])-1)*100 ,2)
+        change_points = df.Close[-1] - df.Close[0]
+        jsobj = {
+            'price': df.Close['-1'],
+            'change_percent': change_percent,
+            'change_points': change_points,
+        }
+        return jsobj
+    except:
+        url = 'https://finance.yahoo.com/quote/%5EBVSP?p=^BVSP&.tsrc=fin-srch'
+        r = requests.get(url)
+        if r.status_code != 200:
+            print('Status code error')
+            return 1
+        sp = BeautifulSoup(r.text, "lxml")
+        try:
+            vet = sp.find('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}).find_all('span')
+            price = float((vet[0].text.replace(',','')))
+            change_points = vet[1].text.split(' ')[0].replace(',','')
+            change_percentage = float(vet[1].text.split(' ')[1][1:6])
+        except ValueError:
+            change_percentage = float(vet[1].text.split(' ')[1][2:6])
+        except AttributeError:
+            return 1
+        # updated = vet[2].text[11:17]
+        jsobj = {
+            'price': price,
+            'change_percent': change_percentage,
+            'change_points': change_points,
+        }
+        return jsobj
 
 def get_SMA(df):
     df['SMA(14)'] = df.Close.rolling(14).mean()
@@ -162,7 +175,40 @@ def getAbsoluteHighLow():
     return high_final, low_final
         
 
-
+def getHistoricalIbovespa(ndays=180):
+    today = datetime.today().strftime("%Y-%m-%d")
+    days = (datetime.today() - timedelta(ndays)).strftime("%Y-%m-%d")
+    df = web.DataReader("^BVSP", data_source='yahoo', start=days, end=today)
+    df['Variance'] = 0.00
+    for i in range(len(df['Close'])):
+        if i == 0:
+            df['Variance'][i] = 0.00
+        else:
+            a = df.Close.values[i-1]
+            b = df.Close.values[i]
+            df['Variance'][i] = round((((b/a)-1)*100),2)
+    df['SMA10'] = df.Close.rolling(10).mean()
+    df['EWMA'] = df.Close.ewm(alpha=1, min_periods=15).mean()
+    High = [None if math.isnan(s) else round(s, 2) for s in df.High.tolist()]
+    Close = [None if math.isnan(s) else round(s, 2) for s in df.Close.tolist()]
+    Open = [None if math.isnan(s) else round(s, 2) for s in df.Open.tolist()]
+    Low = [None if math.isnan(s) else round(s, 2) for s in df.Low.tolist()]
+    Variance = [None if math.isnan(s) else round(s, 2) for s in df.Variance.tolist()]
+    sma10 = [None if math.isnan(s) else round(s, 2) for s in df['SMA10'].tolist()]
+    ewma = [None if math.isnan(s) else round(s, 2) for s in df.EWMA.tolist()]
+    labs =  [s.to_pydatetime() for s in df.index.tolist()]
+    
+    jsobj = {
+        'High': High,
+        'Open': Open,
+        'Low': Low,
+        'Close': Close,
+        'Variance': Variance,
+        'sma10': sma10,
+        'labs': labs,
+        'ewma': ewma,
+    }
+    return jsobj
 # # REMOVE AS DUPLICATAS DE UMA LISTA
 # def check_2_remove(vet):
 #     for item in vet:

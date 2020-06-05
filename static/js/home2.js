@@ -1,12 +1,28 @@
-//
-var positiveStocks = 0;
-var negativeStocks = 0;
+var landingPage = document.querySelector(".landing-page");
+var default_responsive = [
+  {
+    breakpoint: 1000,
+    options: {
+      chart: {
+        height: 400,
+      },
+      yaxis: {
+        show: false,
+      },
+      xaxis: {
+        labels: {
+          show: false,
+        },
+      },
+    },
+  },
+];
+setTimeout(function () {
+  landingPage.style.display = "none";
+}, 3500);
+
 var symbols = JSON.parse(document.getElementById("symbols").textContent);
 var favorites = JSON.parse(document.getElementById("favorites").textContent);
-var stocks_json = JSON.parse(
-  document.getElementById("stocks_json").textContent
-);
-
 function appendStocktoCard(stock) {
   let price = stock.price.toLocaleString("pt-BR", {
     style: "currency",
@@ -15,6 +31,14 @@ function appendStocktoCard(stock) {
   var favIcon = "fa-star";
   let cpClass;
   let iconClass;
+  let priceChange = ((stock.change_percent / 100) * stock.price).toLocaleString(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL",
+    }
+  );
+
   if (stock.change_percent > 0) {
     cpClass = "positive-change";
     iconClass = "fa-arrow-up";
@@ -61,8 +85,8 @@ function appendStocktoCard(stock) {
             <p>Variação</p>
           </div>
           <div>
-            <p class="${cpClass}">
-              <i class="fas ${iconClass}"></i> ${stock.change_percent}%
+            <p>
+            <span class="${cpClass}"><i class="fas ${iconClass}"></i> ${stock.change_percent}% </span>(${priceChange})
             </p>
           </div>
         </div>
@@ -104,132 +128,6 @@ function appendStocktoCard(stock) {
   }
 }
 
-function ajaxStockUpdater(i, positiveVar, negativeVar) {
-  $.ajax({
-    url: home_url,
-    data: {
-      action: "update_stocks",
-      data: symbols[i],
-    },
-    xhrFields: {
-      onprogress: function (e) {
-        if (e.lengthComputable) {
-          console.log((e.loaded / e.total) * 100 + "%");
-        }
-      },
-    },
-    dataType: "json",
-    success: (response) => {
-      if (response) {
-        appendStocktoCard(response);
-        appendStocktoChart(response, positiveVar, negativeVar);
-      }
-    },
-  });
-}
-
-function splitVariance(stock, positiveVar, negativeVar) {
-  if (stock.change_percent > 0) {
-    positiveVar.push(stock.change_percent);
-    negativeVar.push(null);
-  } else {
-    negativeVar.push(stock.change_percent);
-    positiveVar.push(null);
-  }
-}
-
-function appendStocktoChart(stock, positiveVar, negativeVar) {
-  splitVariance(stock, positiveVar, negativeVar);
-  let len = positiveVar.length - 1;
-  if (positiveVar[len]) {
-    chart.data.datasets[0].data[0] = chart.data.datasets[0].data[0] + 1;
-  } else {
-    chart.data.datasets[0].data[1] = chart.data.datasets[0].data[1] + 1;
-  }
-  chart.update();
-  chart2.data.datasets[0].data = positiveVar;
-  chart2.data.datasets[1].data = negativeVar;
-  chart2.update();
-}
-var ctx = document.getElementById("stockChartPie").getContext("2d");
-var chart = new Chart(ctx, {
-  // The type of chart we want to create
-  type: "pie",
-
-  // The data for our dataset
-  data: {
-    labels: ["Ações crescendo", "Ações caindo"],
-    datasets: [
-      {
-        // borderColor: ["rgb(0,153,0)", "rgb(235,57,57)"],
-        backgroundColor: ["rgb(0,153,0)", "rgb(235,57,57)"],
-        data: [0, 0],
-      },
-    ],
-  },
-  options: {},
-});
-var ctx2 = document.getElementById("stockChartpercent").getContext("2d");
-var chart2 = new Chart(ctx2, {
-  // The type of chart we want to create
-  type: "bar",
-
-  // The data for our dataset
-  data: {
-    labels: symbols,
-    datasets: [
-      {
-        label: "Variação positiva",
-        borderColor: "rgb(0,153,0)",
-        backgroundColor: "rgb(0,153,0)",
-        pointBackgroundColor: "rgb(0,153,0)",
-        pointHoverRadius: 5,
-        data: [],
-        fill: false,
-      },
-      {
-        label: "Variação negativa",
-        borderColor: "rgb(235,57,57)",
-        backgroundColor: "rgb(235,57,57)",
-        pointBackgroundColor: "rgb(235,57,57)",
-        pointHoverRadius: 5,
-        data: [],
-        fill: false,
-      },
-    ],
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-    },
-  },
-
-  // Configuration options go here
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [
-        {
-          scaleLabel: {
-            display: true,
-            labelString: "Ações",
-            fontColor: "black",
-          },
-        },
-      ],
-      yAxes: [
-        {
-          scaleLabel: {
-            display: true,
-            labelString: "Porcentagem de Variação",
-            fontColor: "black",
-          },
-        },
-      ],
-    },
-  },
-});
-
 function ajaxFavUpdater(e) {
   // Get CSRFTOKEN for 'POST' requests and set it up with all ajax calls
   let csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
@@ -262,94 +160,188 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function ajaxStockWrapper() {
-  var positiveVar = [];
-  var negativeVar = [];
+  var labs = [];
+  var variance = [];
+  var status = [];
   for (i = 0; i < symbols.length; i++) {
-    ajaxStockUpdater(i, positiveVar, negativeVar);
+    ajaxStockUpdater(i, labs, variance, status);
   }
+  $.when.apply(null, status).done(() => {
+    console.log("Building percent chart");
+    buildPercentChart(labs, variance);
+  });
 }
 
-// function ajaxFeaturedStocks(iterator) {
-//   $.ajax({
-//     url: home_url,
-//     data: {
-//       action: "update_features",
-//       data: "",
-//     },
-//     dataType: "json",
-//     success: (response) => {
-//       if (response) {
-//         ajaxFeaturedStocksWrapper(
-//           response.highrel,
-//           response.highabs,
-//           response.lowrel,
-//           response.lowabs
-//         );
-//       }
-//     },
-//   });
-// }
+function ajaxStockUpdater(i, labs, variance, status) {
+  var request = $.ajax({
+    url: home_url,
+    data: {
+      action: "update_stocks",
+      data: symbols[i],
+    },
+    xhrFields: {
+      onprogress: function (e) {
+        if (e.lengthComputable) {
+          console.log((e.loaded / e.total) * 100 + "%");
+        }
+      },
+    },
+    dataType: "json",
+    success: (response) => {
+      if (response) {
+        appendStocktoCard(response);
+        appendStocktoChart(response);
+        variance.push(response.change_percent);
+        labs.push(response.symbol);
+      }
+    },
+  });
+  status.push(request);
+}
 
-// function ajaxFeaturedStocksWrapper(highrel, highabs, lowrel, lowabs) {
-//   if (!isEmpty($("#relative-high tbody"))) {
-//     $("#relative-high tbody").contents().remove();
-//   }
-//   if (!isEmpty($("#absolute-high tbody"))) {
-//     $("#absolute-high tbody").contents().remove();
-//   }
-//   if (!isEmpty($("#absolute-low tbody"))) {
-//     $("#absolute-low tbody").contents().remove();
-//   }
-//   if (!isEmpty($("#relative-low tbody"))) {
-//     $("#relative-low tbody").contents().remove();
-//   }
-//   for (i = 1; i < 6; i++) {
-//     appendFeaturedStocks(highrel, highabs, lowrel, lowabs, i);
-//   }
-// }
-// function isEmpty(el) {
-//   return !$.trim(el.html());
-// }
+// Pie Chart
+function appendStocktoChart(stock) {
+  let arr = pieChart.w.globals.series;
+  if (stock.change_percent > 0) {
+    arr[0] = arr[0] + 1;
+  } else {
+    arr[1] = arr[1] + 1;
+  }
+  pieChart.updateSeries(arr);
+}
 
-// function appendFeaturedStocks(highrel, highabs, lowrel, lowabs, iterator) {
-//   let colorH;
-//   let colorN;
-//   if (iterator % 2 == 0) {
-//     colorH = `green darken-4`;
-//     colorN = `red darken-4  `;
-//   } else {
-//     colorN = `red darken-2`;
-//     colorH = `#2e7d32 green darken-2`;
-//   }
-//   $("#relative-high > tbody:last-child").append(`
-//     <tr class="${colorH}">
-//       <td>${highrel[i - 1].symbol}</td>
-//       <td>R$ ${highrel[i - 1].price}</td>
-//       <td>${highrel[i - 1].change_percent}%</td>
-//     </tr>
-//   `);
+var optionsPie = {
+  series: [0, 0],
+  chart: {
+    width: 350,
+    type: "pie",
+  },
+  labels: ["Ativos subindo", "Ativos caindo"],
+  colors: ["#00B746", "#EF403C"],
+  stroke: {
+    width: 4,
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  legend: {
+    position: "bottom",
+  },
+  responsive: [
+    {
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 300,
+        },
+        legend: {
+          position: "bottom",
+        },
+      },
+    },
+  ],
+};
 
-//   $("#absolute-high > tbody:last-child").append(`
-//   <tr class="${colorH}">
-//     <td>${highabs[i - 1].symbol}</td>
-//     <td>R$ ${highabs[i - 1].price}</td>
-//     <td>R$ ${highabs[i - 1].price_change}</td>
-//   </tr>
-//   `);
+var pieChart = new ApexCharts(
+  document.querySelector("#stockChartPie"),
+  optionsPie
+);
+pieChart.render();
 
-//   $("#relative-low > tbody:last-child").append(`
-//     <tr class="${colorN}">
-//       <td>${lowrel[i - 1].symbol}</td>
-//       <td>R$ ${lowrel[i - 1].price}</td>
-//       <td>${lowrel[i - 1].change_percent}%</td>
-//     </tr>
-//   `);
+// Variation Chart
 
-//   $("#absolute-low > tbody:last-child").append(`
-//   <tr class="${colorN}">
-//     <td>${lowabs[i - 1].symbol}</td>
-//     <td>R$ ${lowabs[i - 1].price}</td>
-//     <td>R$ ${lowabs[i - 1].price_change}</td>
-//   </tr>
-//   `);
-// }
+function buildPercentChart(labs, variance) {
+  let arr = [[], []];
+  for (i = 0; i < variance.length; i++) {
+    if (variance[i] > 0) {
+      arr[0].push({
+        x: labs[i],
+        y: variance[i],
+      });
+      arr[1].push({
+        x: labs[i],
+        y: null,
+      });
+    } else {
+      arr[1].push({
+        x: labs[i],
+        y: variance[i],
+      });
+      arr[0].push({
+        x: labs[i],
+        y: null,
+      });
+    }
+  }
+  percentChart.updateSeries([{ data: arr[0] }, { data: arr[1] }]);
+}
+
+var optionsPercent = {
+  series: [
+    {
+      name: "Variação Positiva",
+      data: [],
+    },
+    {
+      name: "Variação Negativa",
+      data: [],
+    },
+  ],
+  chart: {
+    type: "bar",
+    height: 440,
+    stacked: true,
+  },
+  colors: ["#00B746", "#EF403C"],
+  plotOptions: {
+    bar: {
+      horizontal: false,
+      barHeight: "80%",
+    },
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  stroke: {
+    width: 1,
+    colors: ["#fff"],
+  },
+
+  grid: {
+    xaxis: {
+      lines: {
+        show: false,
+      },
+    },
+  },
+  yaxis: {
+    // min: -20,
+    // max: 20,
+    title: {
+      text: "Variação (%)",
+    },
+  },
+  tooltip: {
+    shared: false,
+    x: {
+      formatter: function (val) {
+        return val;
+      },
+    },
+    y: {
+      formatter: function (val) {
+        return Math.abs(val) + "%";
+      },
+    },
+  },
+  title: {
+    text: "Resumo de desempenho",
+  },
+  responsive: default_responsive,
+};
+
+var percentChart = new ApexCharts(
+  document.querySelector("#stockChartpercent"),
+  optionsPercent
+);
+percentChart.render();

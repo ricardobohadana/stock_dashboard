@@ -6,8 +6,77 @@ var sma15 = JSON.parse(document.getElementById("sma15").textContent);
 var sma30 = JSON.parse(document.getElementById("sma30").textContent);
 var sma60 = JSON.parse(document.getElementById("sma60").textContent);
 var symbol = JSON.parse(document.getElementById("symbol").textContent);
-
 var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+const default_responsive = [
+  {
+    breakpoint: 1000,
+    options: {
+      chart: {
+        height: 400,
+      },
+      yaxis: {
+        show: false,
+      },
+      xaxis: {
+        labels: {
+          show: false,
+        },
+      },
+    },
+  },
+];
+
+const default_tooltip = {
+  shared: true,
+  custom: [
+    function ({ seriesIndex, dataPointIndex, w }) {
+      var mean = w.globals.series[seriesIndex][dataPointIndex].toLocaleString(
+        "pt-BR",
+        {
+          style: "currency",
+          currency: "BRL",
+        }
+      );
+      return `<div class="card">Média: ${mean}</div>`;
+    },
+    function ({ seriesIndex, dataPointIndex, w }) {
+      var o = w.globals.seriesCandleO[seriesIndex][
+        dataPointIndex
+      ].toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      var h = w.globals.seriesCandleH[seriesIndex][
+        dataPointIndex
+      ].toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      var l = w.globals.seriesCandleL[seriesIndex][
+        dataPointIndex
+      ].toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      var c = w.globals.seriesCandleC[seriesIndex][
+        dataPointIndex
+      ].toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      return `
+      <div class="card">
+        <div class="card-body text-center ">
+          <span><strong>Close: ${c}</strong></span></br>
+          <span>Open: ${o}</span></br>
+          <span>High: ${h}</span></br>
+          <span>Low: ${l}</span>
+        </div>
+      </div>
+      `;
+    },
+  ],
+};
 
 $.ajaxSetup({
   beforeSend: function (xhr, settings) {
@@ -21,17 +90,28 @@ document.querySelector("select").addEventListener("change", (e) => {
     type: "POST",
     data: { value: e.target.value },
     success: function (json) {
-      chart.data.labels = json.labs;
-      chart.data.datasets[3].data = json.stock;
-      chart.data.datasets[0].data = json.sma15;
-      chart.data.datasets[1].data = json.sma30;
-      chart.data.datasets[2].data = json.sma60;
-      chart2_data = splitVariance(json.variance);
-      chart2.data.labels = json.labs;
-      chart2.data.datasets[0].data = chart2_data[0];
-      chart2.data.datasets[1].data = chart2_data[1];
-      chart2.update();
-      chart.update();
+      chart.updateSeries([
+        {
+          data: supplyData(json.labs, json.sma15, false),
+          type: "line",
+          name: "SMA 14",
+        },
+        {
+          data: supplyData(json.labs, json.stock, true),
+          name: "Preço",
+          type: "candlestick",
+        },
+      ]);
+      chart2.updateSeries([
+        {
+          name: "Variação Positiva",
+          data: splitVariance(json.variance)[0],
+        },
+        {
+          name: "Variação Negativa",
+          data: splitVariance(json.variance)[1],
+        },
+      ]);
     },
     fail: function (data) {
       console.log("FAIL");
@@ -39,148 +119,167 @@ document.querySelector("select").addEventListener("change", (e) => {
   });
 });
 
-// criando o gráfico
-var ctx = document.getElementById("stockChart").getContext("2d");
-var chart = new Chart(ctx, {
-  // The type of chart we want to create
-  type: "line",
-
-  // The data for our dataset
-  data: {
-    labels: labs,
-    datasets: [
-      {
-        label: "SMA 14 days",
-        borderColor: "rgb(187,93,10)",
-        backgroundColor: "rgb(187,93,10)",
-        pointBackgroundColor: "rgb(187,93,10)",
-        pointHoverRadius: 5,
-        data: sma15,
-        fill: false,
-      },
-      {
-        label: "SMA 30 days",
-        borderColor: "rgb(228, 203, 116)",
-        backgroundColor: "rgb(228, 203, 116)",
-        pointBackgroundColor: "rgb(228, 203, 116)",
-        data: sma30,
-        fill: false,
-      },
-      {
-        label: "SMA 7 days",
-        borderColor: "rgb(143, 249, 236)",
-        backgroundColor: "rgb(143, 249, 236)",
-        pointBackgroundColor: "rgb(143, 249, 236)",
-        data: sma60,
-        fill: false,
-      },
-      {
-        label: symbol,
-        backgroundColor: "rgb(162,162,162)",
-        borderColor: "rgb(51, 51, 51)",
-        pointBackgroundColor: "rgb(162,162,162)",
-        data: stock,
-      },
-    ],
-  },
-
-  // Configuration options go here
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      xAxes: [
-        {
-          scaleLabel: {
-            display: true,
-            labelString: "Data",
-            fontColor: "black",
-          },
-        },
-      ],
-      yAxes: [
-        {
-          scaleLabel: {
-            display: true,
-            labelString: "Preço da ação em R$",
-            fontColor: "black",
-          },
-        },
-      ],
-    },
-  },
-});
-
 // Create Chart Percent objects
-function splitVariance(variance) {
-  var positive = [null];
-  var negative = [null];
+
+function splitVariance(labs, variance) {
+  let date0 = new Date(labs[0]).toDateString().substring(4, 10);
+  var positive = [
+    {
+      x: date0,
+      y: null,
+    },
+  ];
+  var negative = [
+    {
+      x: date0,
+      y: null,
+    },
+  ];
   for (var i = 1; i < variance.length; i++) {
+    let date = new Date(labs[i]).toDateString().substring(4, 10);
     if (variance[i] > 0) {
-      positive.push(variance[i]);
-      negative.push(null);
+      positive.push({
+        x: date,
+        y: variance[i],
+      });
+      negative.push({
+        x: date,
+        y: null,
+      });
     } else {
-      positive.push(null);
-      negative.push(variance[i]);
+      negative.push({
+        x: date,
+        y: variance[i],
+      });
+      positive.push({
+        x: date,
+        y: null,
+      });
     }
   }
   return [positive, negative];
 }
 
-chart2_data = splitVariance(variance);
-var ctx = document.getElementById("stockChartpercent").getContext("2d");
-var chart2 = new Chart(ctx, {
-  // The type of chart we want to create
-  type: "bar",
+function supplyData(labs, stock, multiple) {
+  let data = [];
+  for (i = 0; i < labs.length; i++) {
+    date = new Date(labs[i]);
+    if (multiple) {
+      data.push({
+        x: date.toDateString().substring(4, 10),
+        y: [stock[0][i], stock[1][i], stock[2][i], stock[3][i]],
+      });
+    } else {
+      data.push({
+        x: date.toDateString().substring(4, 10),
+        y: stock[i],
+      });
+    }
+  }
+  return data;
+}
 
-  // The data for our dataset
-  data: {
-    labels: labs,
-    datasets: [
-      {
-        label: "Variação positiva",
-        borderColor: "rgb(0,153,0)",
-        backgroundColor: "rgb(0,153,0)",
-        pointBackgroundColor: "rgb(0,153,0)",
-        pointHoverRadius: 5,
-        data: chart2_data[0],
-        fill: false,
-      },
-      {
-        label: "Variação negativa",
-        borderColor: "rgb(235,57,57)",
-        backgroundColor: "rgb(235,57,57)",
-        pointBackgroundColor: "rgb(235,57,57)",
-        pointHoverRadius: 5,
-        data: chart2_data[1],
-        fill: false,
-      },
-    ],
+var options = {
+  series: [
+    {
+      data: supplyData(labs, sma15, false),
+      type: "line",
+      name: "SMA 14",
+    },
+    {
+      data: supplyData(labs, stock, true),
+      name: "Preço",
+      type: "candlestick",
+    },
+  ],
+  chart: {
+    type: "line",
   },
-
-  // Configuration options go here
-  options: {
-    maintainAspectRatio: false,
-    responsive: true,
-    scales: {
-      xAxes: [
-        {
-          scaleLabel: {
-            display: true,
-            labelString: "Data",
-            fontColor: "black",
-          },
-        },
-      ],
-      yAxes: [
-        {
-          scaleLabel: {
-            display: true,
-            labelString: "Porcentagem de Variação",
-            fontColor: "black",
-          },
-        },
-      ],
+  title: {
+    text: symbol,
+    align: "left",
+  },
+  stroke: {
+    width: [3, 1],
+  },
+  yaxis: {
+    tooltip: {
+      enabled: true,
     },
   },
-});
+  tooltip: default_tooltip,
+  responsive: default_responsive,
+};
+
+var chart = new ApexCharts(document.querySelector("#stockChart"), options);
+chart.render();
+
+var options2 = {
+  series: [
+    {
+      name: "Variação Positiva",
+      data: splitVariance(labs, variance)[0],
+    },
+    {
+      name: "Variação Negativa",
+      data: splitVariance(labs, variance)[1],
+    },
+  ],
+  chart: {
+    type: "bar",
+    height: 440,
+    stacked: true,
+  },
+  colors: ["#00B746", "#EF403C"],
+  plotOptions: {
+    bar: {
+      horizontal: false,
+      barHeight: "80%",
+    },
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  stroke: {
+    width: 1,
+    colors: ["#fff"],
+  },
+
+  grid: {
+    xaxis: {
+      lines: {
+        show: false,
+      },
+    },
+  },
+  yaxis: {
+    // min: -20,
+    // max: 20,
+    title: {
+      text: "Variação",
+    },
+  },
+  tooltip: {
+    shared: false,
+    x: {
+      formatter: function (val) {
+        return val;
+      },
+    },
+    y: {
+      formatter: function (val) {
+        return Math.abs(val) + "%";
+      },
+    },
+  },
+  title: {
+    text: "Variação por dia",
+  },
+  responsive: default_responsive,
+};
+
+var chart2 = new ApexCharts(
+  document.querySelector("#stockChartpercent"),
+  options2
+);
+chart2.render();

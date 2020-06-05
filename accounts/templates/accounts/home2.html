@@ -1,4 +1,8 @@
 {% extends './home.html' %} {% load static %} {% block content %}
+<div class="landing-page">
+  <h1><span class="brand-title">RM</span> INVESTIMENTOS</h1>
+  <p>O seu site de ações</p>
+</div>
 <link
   rel="stylesheet"
   type="text/css"
@@ -22,10 +26,9 @@
     <div class="col-lg-5">
       <div class="card">
         <div class="card-body">
-          <canvas
+          <div
             id="stockChartpercent"
-            style="position: relative; height: 50vh; width: 100%;"
-          ></canvas>
+          ></div>
         </div>
       </div>
     </div>
@@ -48,8 +51,7 @@
               {% if obj.change_percent > 0 %}
               <p>
                 {{ obj.change_points }} (<span class="positive-change"
-                  ><i class="fas fa-arrow-up"></i> {{ obj.change_percent
-                  }}%</span
+                  ><i class="fas fa-arrow-up"></i> {{obj.change_percent}}%</span
                 >)
               </p>
               {% else %}
@@ -67,10 +69,9 @@
       <div class="card mb-2">
         <h4 class="card-header">Resumo da Bolsa</h4>
         <div class="card-body">
-          <canvas
+          <div
             id="stockChartPie"
-            style="position: relative; height: 30vh; width: 100%;"
-          ></canvas>
+          ></div>
         </div>
       </div>
     </div>
@@ -91,7 +92,7 @@
 {% endif %} {% endfor %} {% endif %} {{ symbols|json_script:"symbols" }}
 {{favorites|json_script:"favorites" }} {{stocks_json|json_script:"stocks_json"}}
 {% csrf_token %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
   const home_url = "{% url 'homepage' %}";
