@@ -25,9 +25,7 @@ SECRET_KEY = '(sw2il33$&e&mklnj4#635h%=4_quoz!auaa7ypwt+ztw5k*g='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    # 'cacobm.pythonanywhere.com'
-]
+ALLOWED_HOSTS = ['cacobm.pythonanywhere.com']
 
 
 # Application definition
@@ -124,11 +122,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),	
-] 
-
-# STATIC_ROOT = '/static/'
+STATIC_ROOT = '/home/cacobm/stock_dashboard/collected_static/static'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

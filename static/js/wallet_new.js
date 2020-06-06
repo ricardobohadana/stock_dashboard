@@ -40,6 +40,7 @@ function appendWalletToTable(wallet) {
 
 // Update wallet row
 $("form#updateWallet").submit((e) => {
+  e.preventDefault();
   var stock_symbol = $("#stock-title").contents().text().trim();
   var stock_amount = $('input[name="stock_amount_update"]').val().trim();
   var buy_price = $('input[name="buy_price_update"]').val().trim();
@@ -141,12 +142,13 @@ function createrowTotal() {
         Math.round(100 * total_money_amount) / 100
       }</b></td>
 			<td class="stock-change-percent ${color}"><b>${total_profit}%</b></td>
-		</tr>  
+		</tr>
 	`);
 }
 
 // Create Wallet Item Django Ajax Call
-$("form#createWallet").submit(function () {
+$("form#createWallet").submit( e => {
+  e.preventDefault();
   var stockInput = $('select[name="stockObject"]').val().trim();
   var buyPriceInput = $('input[name="buy_price"]').val().trim();
   var stockAmoutInput = $('input[name="stock_amount"]').val().trim();
@@ -167,6 +169,7 @@ $("form#createWallet").submit(function () {
           console.log("executed");
           appendWalletToTable(data);
           createrowTotal();
+          window.location.reload();
         }
       },
     });

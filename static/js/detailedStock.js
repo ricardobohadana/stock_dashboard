@@ -122,7 +122,7 @@ document.querySelector("select").addEventListener("change", (e) => {
 // Create Chart Percent objects
 
 function splitVariance(labs, variance) {
-  let date0 = new Date(labs[0]).toDateString().substring(4, 10);
+  let date0 = labs[0]
   var positive = [
     {
       x: date0,
@@ -136,7 +136,7 @@ function splitVariance(labs, variance) {
     },
   ];
   for (var i = 1; i < variance.length; i++) {
-    let date = new Date(labs[i]).toDateString().substring(4, 10);
+    let date = labs[i];
     if (variance[i] > 0) {
       positive.push({
         x: date,
@@ -163,15 +163,15 @@ function splitVariance(labs, variance) {
 function supplyData(labs, stock, multiple) {
   let data = [];
   for (i = 0; i < labs.length; i++) {
-    date = new Date(labs[i]);
+    date = labs[i];
     if (multiple) {
       data.push({
-        x: date.toDateString().substring(4, 10),
+        x: date,
         y: [stock[0][i], stock[1][i], stock[2][i], stock[3][i]],
       });
     } else {
       data.push({
-        x: date.toDateString().substring(4, 10),
+        x: date,
         y: stock[i],
       });
     }

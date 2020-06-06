@@ -175,15 +175,15 @@ function buildPercentChart(labs, variance) {
 function supplyData(labs, stock, multiple) {
   let data = [];
   for (i = 0; i < labs.length; i++) {
-    date = new Date(labs[i]);
+    date = labs[i];
     if (multiple) {
       data.push({
-        x: date.toDateString().substring(4, 10),
+        x: date,
         y: [stock[0][i], stock[1][i], stock[2][i], stock[3][i]],
       });
     } else {
       data.push({
-        x: date.toDateString().substring(4, 10),
+        x: date,
         y: stock[i],
       });
     }

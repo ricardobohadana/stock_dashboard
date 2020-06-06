@@ -38,7 +38,7 @@ addEventListener("DOMContentLoaded", (e) => {
       var array_labels = [];
       var array_dataset = [];
       for (arg in obj) {
-        let data = new Date(arg.toString()).toDateString().substring(4, 15);
+        let data = arg.toString();
         array_labels.push(data);
         array_dataset.push(parseFloat(obj[arg]["4. close"]));
       }
@@ -78,7 +78,7 @@ function createrowData(labels, dataset) {
           <td scope="col"><b>${labels[i]}</b></td>
           <td scope="row"><b>R$ ${dataset[i]}</b></td>
           <td scope="row"><span class="${changeClass}"><i class="${iconClass}"></i> <b>${total_profit[i]}%</b></span></td>
-        </tr>  
+        </tr>
       `);
   }
 }

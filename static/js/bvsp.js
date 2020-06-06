@@ -25,40 +25,14 @@ const default_tooltip = {
   shared: true,
   custom: [
     function ({ seriesIndex, dataPointIndex, w }) {
-      var mean = w.globals.series[seriesIndex][dataPointIndex].toLocaleString(
-        "pt-BR",
-        {
-          style: "currency",
-          currency: "BRL",
-        }
-      );
+      var mean = w.globals.series[seriesIndex][dataPointIndex];
       return `<div class="card">Média Simples: ${mean}</div>`;
     },
     function ({ seriesIndex, dataPointIndex, w }) {
-      var o = w.globals.seriesCandleO[seriesIndex][
-        dataPointIndex
-      ].toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-      var h = w.globals.seriesCandleH[seriesIndex][
-        dataPointIndex
-      ].toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-      var l = w.globals.seriesCandleL[seriesIndex][
-        dataPointIndex
-      ].toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-      var c = w.globals.seriesCandleC[seriesIndex][
-        dataPointIndex
-      ].toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
+      var o = w.globals.seriesCandleO[seriesIndex][dataPointIndex];
+      var h = w.globals.seriesCandleH[seriesIndex][dataPointIndex];
+      var l = w.globals.seriesCandleL[seriesIndex][dataPointIndex];
+      var c = w.globals.seriesCandleC[seriesIndex][dataPointIndex];
       return `
       <div class="card">
         <div class="card-body text-center ">
@@ -71,13 +45,7 @@ const default_tooltip = {
       `;
     },
     function ({ seriesIndex, dataPointIndex, w }) {
-      var mean = w.globals.series[seriesIndex][dataPointIndex].toLocaleString(
-        "pt-BR",
-        {
-          style: "currency",
-          currency: "BRL",
-        }
-      );
+      var mean = w.globals.series[seriesIndex][dataPointIndex];
       return `<div class="card">Média Exponencial: ${mean}</div>`;
     },
   ],
@@ -132,11 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
       percentClass = "negative";
       iconClass = "down";
     }
-    let price = ibov.Close[i].toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-    let date = new Date(ibov.labs[i]).toDateString().substring(4, 15);
+    let price = ibov.Close[i]
+    let date = ibov.labs[i]
     let data = `
     <tr>
       <td>${date}</td>
@@ -267,7 +232,7 @@ function supplyDataIbov(ibov) {
   let smaData = [];
   let ewmaData = [];
   for (i = 0; i < ibov.labs.length; i++) {
-    date = new Date(ibov.labs[i]).toDateString().substring(4, 10);
+    date = ibov.labs[i];
     mainData.push({
       x: date,
       y: [ibov.Open[i], ibov.High[i], ibov.Low[i], ibov.Close[i]],
@@ -306,7 +271,7 @@ var mainOptions = {
     type: "line",
   },
   title: {
-    text: "",
+    text: "Ibovespa",
     align: "left",
   },
   stroke: {

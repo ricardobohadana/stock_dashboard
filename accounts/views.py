@@ -18,7 +18,7 @@ class bvspView(View):
         if request.is_ajax():
             ndays = int(request.GET.get('value', None))
             return JsonResponse(getHistoricalIbovespa(ndays))
-            
+
         ibov = getHistoricalIbovespa()
         context = {
             'ibov': ibov
@@ -109,15 +109,17 @@ class WalletView(View):
 
 
 class createWalletView(View):
-    def get(self, request, *args, **kwargs):    
+    def get(self, request, *args, **kwargs):
         stock = Stock.objects.get(pk=request.GET.get('stock', None))
         stock_amount = int(request.GET.get('stock_amount', None))
         buy_price = float(request.GET.get('buy_price', None))
+        owner = str(request.GET.get('owner', None))
         money_amount = stock.price * stock_amount
         investment = float(buy_price * stock_amount)
-        
+
         obj = Wallet.objects.create(
             stock=stock,
+            owner=owner,
             stock_amount=stock_amount,
             buy_price=round(buy_price,2),
             money_amount=round(money_amount,2),
@@ -165,7 +167,7 @@ class updateWalletView(View):
             'buy_price': obj.buy_price,
         }
         return JsonResponse(data)
-        
+
 
 class deleteWalletView(View):
     def get(self, request, *args, **kwargs):
@@ -180,14 +182,14 @@ class deleteWalletView(View):
 class newhomeView(View):
     model = Stock
     template_name = 'accounts/home2.html'
-    
+
     def update_favorites(self, data):
         id = int(data)
         obj = Stock.objects.get(pk=id)
         obj.favorite = not obj.favorite
         obj.save()
         context = {
-            "fav": obj.favorite,    
+            "fav": obj.favorite,
         }
         return context
 
@@ -322,8 +324,8 @@ def detailedstockView(request, pk):
         }
 
         return HttpResponse(json.dumps(context), content_type="application/json")
-    
-    
+
+
     labs, datas, variance, prev = get_historicalData(obj.symbol)
 
     all_lists = []
@@ -352,4 +354,3 @@ def removestockView(request, pk):
     messages.success(request, 'Ativo removido do portfólio com sucesso!')
     return redirect('homepage')
 
-        
