@@ -14,6 +14,7 @@ class StockSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Stock
 		fields = [
+			'pk',
 			'symbol',
 			'price',
 			'updated',
@@ -34,14 +35,14 @@ class StockSerializer(serializers.ModelSerializer):
 			instance.save()
 			return instance
 	
-	def update(self, symbol):
-		new_obj = get_Stock_Data(symbol)
-		db_query = Stock.objects.filter(symbol=symbol)
-		return db_query.update(
-			price=new_obj['price'],
-			change_percent=new_obj['change_percent'],
-			updated=timezone.now(),
-		)
+	def update(self, instance):
+		new_obj = get_Stock_Data(instance.symbol)
+		print(new_obj['price'])
+		instance.price=new_obj['price']
+		instance.change_percent=new_obj['change_percent']
+		instance.updated=timezone.now()
+		instance.save()
+		return True, instance
 
 	
 

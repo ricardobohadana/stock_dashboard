@@ -94,7 +94,7 @@ document.querySelector("select").addEventListener("change", (e) => {
         {
           data: supplyData(json.labs, json.sma15, false),
           type: "line",
-          name: "SMA 14",
+          name: "EMA 10",
         },
         {
           data: supplyData(json.labs, json.stock, true),
@@ -122,7 +122,7 @@ document.querySelector("select").addEventListener("change", (e) => {
 // Create Chart Percent objects
 
 function splitVariance(labs, variance) {
-  let date0 = labs[0]
+  let date0 = labs[0];
   var positive = [
     {
       x: date0,
@@ -184,7 +184,7 @@ var options = {
     {
       data: supplyData(labs, sma15, false),
       type: "line",
-      name: "SMA 14",
+      name: "EMA 10",
     },
     {
       data: supplyData(labs, stock, true),

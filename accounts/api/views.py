@@ -67,17 +67,21 @@ class StockApiDetailView(APIView):
 
 
 class StockApiUpdateView(APIView):
-  def get(self, request):
-    try:
-      stocks = Stock.objects.all()
-      print(stocks)
-      for stock in stocks:
-        serializer = StockSerializer(stock)
-        serializer.update(stock.symbol)
-      
-      return Response({"success": "All Stocks were updated successfully"}, status=200)
-    except:
+  def get(self, request, pk=None):
+    stock = Stock.objects.get(pk=pk)
+    serializer = StockSerializer(stock)
+    updated, instance = serializer.update(stock)
+    updated_serializer = StockSerializer(instance)
+    if updated:
+      context = {
+        "success": "All Stocks were updated successfully",
+        "updated_stock": updated_serializer.data,
+
+      }
+      return Response(context, status=200)
+    else:
       return Response({"error":"Something prevented the update from being executed"}, status=400)
+      
 
 
 

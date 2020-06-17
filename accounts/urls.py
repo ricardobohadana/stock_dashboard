@@ -12,6 +12,7 @@ urlpatterns = [
     path('detailedstock/<str:pk>', views.detailedstockView, name='detailedstockpage'),
     path('removestock/<str:pk>', views.removestockView, name='removestockpage'),
     path('forex/', views.forexView.as_view(), name='forexpage'),
+    path('transactions/', views.transactionView.as_view(), name='transactionspage'),
     path('wallet/', views.WalletView.as_view(), name='walletpage'),
     path('wallet/create', views.createWalletView.as_view(), name='createwalletpage'),
     path('wallet/update', views.updateWalletView.as_view(), name='updatewalletpage'),

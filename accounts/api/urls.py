@@ -10,7 +10,7 @@ urlpatterns = [
     path('stock/', views.StockApiView.as_view(), name='apistockpage'),
     path('stock/<str:id>', views.StockApiDetailView.as_view(), name='apistockdetailpage'),
     # path('stock/create', views.StockAPIView.as_view(), name='apistockcreatepage'),
-    path('stock/update/', views.StockApiUpdateView.as_view(), name='apistockupdatepage'),
+    path('stock/update/<str:pk>', views.StockApiUpdateView.as_view(), name='apistockupdatepage'),
     # path('stock/delete/<str:pk>', views.apiOverview.as_view(), name='apistockdeletepage'),
     
     # # Wallet model

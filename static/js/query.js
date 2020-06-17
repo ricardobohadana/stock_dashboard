@@ -92,7 +92,7 @@ document.querySelector("select").addEventListener("change", (e) => {
         {
           data: supplyData(json.labs, json.sma15, false),
           type: "line",
-          name: "SMA 14",
+          name: "SMA 10",
         },
         {
           data: supplyData(json.labs, json.stock, true),
@@ -284,7 +284,7 @@ var options = {
     {
       data: [],
       type: "line",
-      name: "SMA 14",
+      name: "EMA 10",
     },
     {
       data: [],
@@ -365,7 +365,7 @@ $("#query-form").submit((e) => {
             {
               data: supplyData(data.labs, data.sma15, false),
               type: "line",
-              name: "SMA 14",
+              name: "EMA 10",
             },
             {
               data: supplyData(data.labs, data.stock, true),

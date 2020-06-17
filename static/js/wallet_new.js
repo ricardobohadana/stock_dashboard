@@ -2,18 +2,17 @@
 document.getElementById("wallet").classList.add("active");
 document.getElementById("dashboard").classList.remove("active");
 
+createrowTotal("Todos");
 // Create row Total at the load of the page
-createrowTotal();
-
-// Initialize modal
-
-// Get CSRFTOKEN for 'POST' requests and set it up with all ajax calls
-// var csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-// $.ajaxSetup({
-//   beforeSend: function (xhr, settings) {
-//     xhr.setRequestHeader("X-CSRFToken", csrftoken);
-//   },
-// });
+// window.onload = () => {
+//   var tableSearch = document.querySelector(".search-input");
+//   tableSearch.addEventListener("input", (e) => {
+//     console.log(String(e.target.value));
+//     createrowTotal(String(e.target.value));
+//   });
+// };
+// Initialize select filter
+// $("select.selectpicker").selectpicker();
 
 // Append created item to wallet table
 function appendWalletToTable(wallet) {
@@ -97,7 +96,7 @@ function deleteWallet(id) {
       success: function (data) {
         if (data.deleted) {
           $("#wallet-" + id).remove();
-          createrowTotal();
+          createrowTotal("Todos");
         }
       },
     });
@@ -105,7 +104,7 @@ function deleteWallet(id) {
 }
 
 // Total row
-function createrowTotal() {
+function createrowTotal(owner) {
   var total_row = document.getElementById("wallet-table-total");
   var color = "negative-change";
 
@@ -118,8 +117,8 @@ function createrowTotal() {
   var total_money_amount = 0;
   for (var i = 1, row; (row = table.rows[i]); i++) {
     let amount = parseInt(row.cells[2].textContent);
-    let investment = parseFloat(row.cells[3].textContent.split(" ")[1]);
-    let money_amount = parseFloat(row.cells[5].textContent.split(" ")[1]);
+    let investment = toFloat(row.cells[3].textContent);
+    let money_amount = toFloat(row.cells[5].textContent);
     total_amount += amount;
     total_investment += investment;
     total_money_amount += money_amount;
@@ -129,25 +128,27 @@ function createrowTotal() {
   if (total_profit > 0) {
     color = "positive-change";
   }
+  total_investment = (
+    Math.round(100 * total_investment) / 100
+  ).toLocaleString("en-US", { style: "currency", currency: "BRL" });
+  total_money_amount = (
+    Math.round(100 * total_money_amount) / 100
+  ).toLocaleString("en-US", { style: "currency", currency: "BRL" });
   $("#walletTable > tbody:last-child").append(`
 		<tr id="wallet-table-total">
-			<td class="stock-symbol">-</td>
+			<td class="stock-symbol"><strong>${owner}<strong></td>
 			<td class="stock-symbol"><b>TOTAL</b></td>
-			<td class="stock-amount"><b>${Math.round(100 * total_amount) / 100}</b></td>
-			<td class="stock-investment"><b>R$ ${
-        Math.round(100 * total_investment) / 100
-      }</b></td>
+			<td class="stock-amount"><b>${total_amount}</b></td>
+			<td class="stock-investment"><b>${total_investment}</b></td>
 			<td class="stock-price"><b>-</b></td>
-			<td class="stock-money-amount"><b>R$ ${
-        Math.round(100 * total_money_amount) / 100
-      }</b></td>
+			<td class="stock-money-amount"><b>${total_money_amount}</b></td>
 			<td class="stock-change-percent ${color}"><b>${total_profit}%</b></td>
 		</tr>
 	`);
 }
 
 // Create Wallet Item Django Ajax Call
-$("form#createWallet").submit( e => {
+$("form#createWallet").submit((e) => {
   e.preventDefault();
   var stockInput = $('select[name="stockObject"]').val().trim();
   var buyPriceInput = $('input[name="buy_price"]').val().trim();
@@ -168,7 +169,7 @@ $("form#createWallet").submit( e => {
         if (data) {
           console.log("executed");
           appendWalletToTable(data);
-          createrowTotal();
+          createrowTotal("Todos");
           window.location.reload();
         }
       },
@@ -178,3 +179,44 @@ $("form#createWallet").submit( e => {
   }
   $("form#createWallet").trigger("reset");
 });
+
+function toFloat(num) {
+  const cleanStr = String(num).replace(/[^0-9.,]/g, "");
+  let dotPos = cleanStr.indexOf(".");
+  let commaPos = cleanStr.indexOf(",");
+
+  if (dotPos < 0) dotPos = 0;
+
+  if (commaPos < 0) commaPos = 0;
+
+  const dotSplit = cleanStr.split(".");
+  const commaSplit = cleanStr.split(",");
+
+  const isDecimalDot =
+    dotPos &&
+    ((commaPos && dotPos > commaPos) ||
+      (!commaPos && dotSplit[dotSplit.length - 1].length === 2));
+
+  const isDecimalComma =
+    commaPos &&
+    ((dotPos && dotPos < commaPos) ||
+      (!dotPos && commaSplit[commaSplit.length - 1].length === 2));
+
+  let integerPart = cleanStr;
+  let decimalPart = "0";
+  if (isDecimalComma) {
+    integerPart = commaSplit[0];
+    decimalPart = commaSplit[1];
+  }
+  if (isDecimalDot) {
+    integerPart = dotSplit[0];
+    decimalPart = dotSplit[1];
+  }
+
+  return parseFloat(
+    `${integerPart.replace(/[^0-9]/g, "")}.${decimalPart.replace(
+      /[^0-9]/g,
+      ""
+    )}`
+  );
+}

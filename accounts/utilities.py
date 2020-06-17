@@ -1,3 +1,4 @@
+import talib as finance
 from datetime import datetime, date, timedelta
 import pandas_datareader as web
 import numpy as np
@@ -82,7 +83,7 @@ def get_historicalData(symbol, ndays=180):
     variance = round((((df.Close.values[1]/df.Close.values[0])-1)*100), 2)
     datas = [[],[],[],[]]
     datas[0] = [[round(pr, 2) for pr in df.Open.tolist()], [round(pr, 2) for pr in df.High.tolist()],[round(pr, 2) for pr in df.Low.tolist()],[round(pr, 2) for pr in df.Close.tolist()]]
-    datas[1] = [None if math.isnan(s) else round(s, 2) for s in df['SMA(14)'].tolist()]
+    datas[1] = [None if math.isnan(s) else round(s, 2) for s in df['SMA(10)'].tolist()]
     datas[2] = [None if math.isnan(r) else round(r, 2) for r in df['SMA(30)'].tolist()]
     datas[3] = [None if math.isnan(t) else round(t, 2) for t in df['SMA(7)'].tolist()]
     variance = df.Variance.tolist()
@@ -130,7 +131,7 @@ def get_ibovespaData():
         return jsobj
 
 def get_SMA(df):
-    df['SMA(14)'] = df.Close.rolling(14).mean()
+    df['SMA(10)'] = finance.EMA(df.Close, timeperiod=10)
     df['SMA(30)'] = df.Close.rolling(30).mean()
     df['SMA(7)'] = df.Close.rolling(7).mean()
     prev = [[], [], []]

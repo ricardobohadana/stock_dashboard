@@ -3,16 +3,67 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
-from .models import Stock, Wallet
+from .models import Stock, Wallet, Transaction
 from .forms import StockForm, WalletForm
 from django.contrib import messages
 from .utilities import *
 import simplejson as json
 
+class transactionView(View):
+    model = Transaction
+    template_name = 'accounts/transaction.html'
+    
+    def create_transaction(self, data):
+        try:
+            pass
+            instance = Transaction.objects.create(
+                stock = data[0],
+                operation = data[1],
+                document = data[2],
+                date = data[3],
+                broker = data[4],
+                )
+            instance.save()
+            return True
+        except:
+            return False
+
+    def post(self, request, *args, **kwargs):
+        # procura pelo nome
+        date = request.POST.get('transaction-date', None)
+        broker = request.POST.get('transaction-broker', None)
+        stock = str(request.POST.get('transaction-stock', None)).upper()
+        document = request.FILES['transaction-file']
+        operation = request.POST.get('transaction-operation', None)
+        obj = [stock, operation, document, date, broker]
+        print(obj)
+        if (date and stock and document and operation):
+            done = self.create_transaction(obj)
+            if done:
+                return redirect('transactionspage')
+            else:
+                return HttpResponse('/error/')
+        else:
+            return HttpResponse('/error/')
+
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            if request.GET.get('action', None) == 'delete':
+                    pk = request.GET.get('pk', None)
+                    Transaction.objects.get(pk=pk).delete()
+                    return JsonResponse({'deleted': True})
+        transactions = Transaction.objects.all()
+        context ={
+            'transactions': transactions
+        }
+
+        return render(request, self.template_name, context)
+
+
 class bvspView(View):
     model = None
     template_name = 'accounts/bvsp.html'
-
 
     def get(self, request, *args, **kwargs):
         if request.is_ajax():

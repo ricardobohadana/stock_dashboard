@@ -100,13 +100,15 @@ document.addEventListener("DOMContentLoaded", () => {
       percentClass = "negative";
       iconClass = "down";
     }
-    let price = ibov.Close[i]
-    let date = ibov.labs[i]
+    let price = ibov.Close[i];
+    let date = ibov.labs[i];
     let data = `
     <tr>
-      <td>${date}</td>
+      <td>${date.substring(0, 10)}</td>
       <td class="">${price}</td>
-      <td class="${percentClass}-change">${ibov.Variance[i]}% <i class="fas fa-arrow-${iconClass}"></i></td>
+      <td class="${percentClass}-change">${
+      ibov.Variance[i]
+    }% <i class="fas fa-arrow-${iconClass}"></i></td>
     </tr>
     `;
     $(data).hide().appendTo("table#dataTable > tbody:last-child").fadeIn(1500);

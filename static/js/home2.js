@@ -62,8 +62,8 @@ function appendStocktoCard(stock) {
       <span class="${cpClass}"> <i class="fas ${iconClass}"></i> ${stock.change_percent} %</span>
       </td>
       <td class="d-flex justify-content-end" style="width: fit-content;">
-      <a class="btn-sm btn" href="/detailedstock/${stock.pk}"><i class="fas fa-chart-area"></i></a>
-      <a class="btn-sm btn" href="/removestock/${stock.pk}"><i class="fas fa-times"></i></a>
+      <a class="btn-sm btn-link" href="/detailedstock/${stock.pk}"><i class="fas fa-chart-area"></i></a>
+      <a class="btn-sm btn-link" href="/removestock/${stock.pk}"><i class="fas fa-times"></i></a>
       </td>
     </tr>
     `;
@@ -112,7 +112,7 @@ function appendStocktoCard(stock) {
         </div>
         <div class="d-flex justify-content-between">
           <div>
-          <a href="/detailedstock/${stock.pk}" class="btn"><i class="fas fa-chart-area"></i></a>
+          <a href="/detailedstock/${stock.pk}" role="button" class="btn-link"><i class="fas fa-chart-area"></i></a>
           </div>
           <div>
             <a onclick="ajaxFavUpdater(this)" role="button" data-id="${stock.pk}">

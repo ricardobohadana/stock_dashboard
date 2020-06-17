@@ -1,4 +1,4 @@
-{% extends './home.html' %} {% load static %} {% block content %}
+  {% extends './home.html' %} {% load static %} {% block content %}
 <div class="landing-page">
   <h1><span class="brand-title">RM</span> INVESTIMENTOS</h1>
   <p>O seu site de ações</p>
@@ -11,7 +11,7 @@
 <div class="page-wrapper">
   <div class="row d-flex justify-content-between" id="favs-row"></div>
   <div class="row">
-    <div class="col-lg-4 mb-2">
+    <div class="col-xl-4 col-md-7 mb-2">
       <div class="card">
         <h4 class="card-header">Outras Ações</h4>
         <div class="p-1">
@@ -23,16 +23,8 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-5">
-      <div class="card">
-        <div class="card-body">
-          <div
-            id="stockChartpercent"
-          ></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-3 mb-2">
+    
+    <div class="col-xl-3 col-md-5 mb-2">
       <div class="card mb-2">
         <div class="card-header">
           <div class="d-flex justify-content-between">
@@ -72,6 +64,13 @@
           <div
             id="stockChartPie"
           ></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-5 col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <div id="stockChartpercent"></div>
         </div>
       </div>
     </div>

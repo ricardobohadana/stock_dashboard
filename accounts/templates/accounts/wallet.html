@@ -1,23 +1,36 @@
-{% extends './home.html' %} {% load static %} {% load tempfiltertags %}
+{% extends './home.html' %} {% load static %} {% load tempfiltertags %} {% load humanize %}
 {%block content %}
 
 <!-- Table Structure -->
+<link rel="stylesheet" href="{% static '/css/wallet.css' %}">
 <div class="container pt-3">
   <div class="card">
     <div class="card-header">
       <h4 class="card-title">Carteira</h4>
     </div>
     <div class="card-body table-responsive">
-      <table id="walletTable" class="table">
+      {% comment %} <div class="col mb-3">
+        <label for="wallet-filter">Filtrar</label>
+        <select id="wallet-filter" name="select-filter" class="selectpicker" multiple>
+          <option value="" disabled selected>Selecione como quer filtrar</option>
+          <option value="stock">Ação</option>
+          <option value="owner">Proprietário</option>
+          <option value="profit">Lucro</option>
+          <option value="loss">Prejuízo</option>
+        </select>
+      </div> {% endcomment %}
+      <table id="walletTable" cellspacing="0" class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>Proprietário</th>
-            <th>Ativo</th>
-            <th>Quantidade</th>
-            <th>Investimento Inicial</th>
-            <th>Preço Atual</th>
-            <th>Capital Atualizado</th>
-            <th>Ganho percentual</th>
+            <th >Proprietário</th>
+            <th >Ativo</th>
+            <th >Quantidade</th>
+            <th >Investimento Inicial</th>
+            <th >Preço Atual</th>
+            <th >Capital Atualizado</th>
+            <th >Ganho percentual</th>
+            <th ></th>
+            <th ></th>
           </tr>
         </thead>
         <tbody>
@@ -26,10 +39,10 @@
           <tr id="wallet-{{item.pk}}">
             <td class="stock-owner">{{item.owner}}</td>
             <td class="stock-symbol">{{item.stock.symbol}}</td>
-            <td class="stock-amount">{{item.stock_amount}}</td>
-            <td class="stock-investment">R$ {{item.investment}}</td>
+            <td class="stock-amount">{{item.stock_amount|intcomma}}</td>
+            <td class="stock-investment">R$ {{item.investment|intcomma}}</td>
             <td class="stock-price">R$ {{item.stock.price}}</td>
-            <td class="stock-money-amount">R$ {{item.money_amount}}</td>
+            <td class="stock-money-amount">R$ {{item.money_amount|intcomma}}</td>
             {% with percent=item.money_amount|changePercent:item.investment  %}
             {% if percent > 0 %}
             <td class="stock-change-percent positive-change">
@@ -47,7 +60,7 @@
               <button
 								data-toggle="modal" 
                 onClick="editWallet('{{item.stock.symbol}}')"
-                class="btn-primary btn"
+                class="btn-dark btn btn-md"
                 href="#modal1"
               >
                 EDITAR
@@ -57,7 +70,7 @@
             <td>
               <button
                 onClick="deleteWallet({{item.pk}})"
-                class="btn-primary btn"
+                class="btn-danger btn-md btn"
               >
                 LIQUIDAR
               </button>
@@ -105,7 +118,7 @@
 							/   >
 						</div>
 						<div class="col-6 mt-3 d-flex justify-content-center">
-							<button type="submit" class="btn btn-primary">Submit</button>
+							<button type="submit" class="btn btn-dark">Submit</button>
 						</div>
 					</div>
 				</form>
@@ -171,7 +184,7 @@
             />
           </div>
           <div class="col-6 mt-3 d-flex justify-content-center">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-dark">Submit</button>
           </div>
         </div>
       </form>
@@ -193,8 +206,9 @@
 </script>
 <script src="{% static '/js/wallet_new.js' %}"></script>
 <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
-      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
-      crossorigin="anonymous"
-    ></script>
+  src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+  integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+  crossorigin="anonymous"
+></script>
+<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
 {% endblock content%}

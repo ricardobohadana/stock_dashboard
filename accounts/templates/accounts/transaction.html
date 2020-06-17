@@ -1,0 +1,211 @@
+{% extends './home.html' %} {% load static %} {% load tempfiltertags %} {% load humanize %}
+{%block content %}
+
+<!-- Table Structure -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.0/css/mdb.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static '/css/transactions.css' %}">
+<div class="container pt-3">
+  
+  <div class="card mt-3">
+    <div class="card-header d-flex justify-content-between">
+      <h4 class="card-title">Transações</h4><h4 class="card-title">Adicionar nova transação: <button class="btn-sm btn-dark" data-toggle="modal" href='#modalCreate'><i class="fas fa-plus"></i></button></span></h4>
+    </div>
+    <div class="card-body table-responsive">
+      {% comment %} <div class="col mb-3">
+        <label for="wallet-filter">Filtrar</label>
+        <select id="wallet-filter" name="select-filter" class="selectpicker" multiple>
+          <option value="" disabled selected>Selecione como quer filtrar</option>
+          <option value="stock">Ação</option>
+          <option value="owner">Proprietário</option>
+          <option value="profit">Lucro</option>
+          <option value="loss">Prejuízo</option>
+        </select>
+      </div> {% endcomment %}
+      <table id="transactionsTable" class="table table-hover">
+        <thead>
+          <tr>
+            <th class="text-center" >Id</th>
+            <th class="text-center" >Data da Operação</th>
+            <th class="text-center" >Corretora</th>
+            <th class="text-center" >Operação</th>
+            <th class="text-center" >Ativo</th>
+            <th class="text-center" >Nota de Corretagem</th>
+            <th class="text-center" ></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if transactions %}
+          {% for item in transactions %}
+          <tr  id="transactions-{{item.pk}}" >
+            <td class="transaction-pk align-middle text-center">{{item.pk}}</td>
+            <td class="transaction-date align-middle text-center">{{item.date}}</td>
+            <td class="transaction-broker align-middle text-center">{{item.broker}}</td>
+            <td class="transaction-operation align-middle text-center">{{item.operation}}</td>
+            <td class="transaction-symbol align-middle text-center">{{item.stock}}</td>
+            <td class="transaction-document align-middle text-center"><a download href="{{item.document.url}}"><i class="fas fa-file-download"></i></a></td>
+            {% comment %} Modal Trigger {% endcomment %}
+            <td>
+              <button
+								data-toggle="modal" 
+                onClick="deleteTransaction('{{item.pk}}')"
+                class="align-middle text-center btn-danger btn-sm btn"
+                href="#modal1"
+              >
+                DELETAR
+              </button>
+            </td>
+            {% comment %} DELETE TRIGGER {% endcomment %}
+          </tr>
+          {% endfor %} {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- End Table Structure -->
+
+<!-- Modal Structure --> 
+<!-- <div id="modal1" class="modal fade">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title" id="stock-title">ID da Transação: </h4>
+			</div>
+			<div class="modal-body">
+				<form id="updateTransaction" action="" autocomplete="false">
+					<div class="form-group d-flex flex-column align-items-center">
+
+					{% comment %}  {% endcomment %}
+						<div class="col-6 mt-3">
+							<label for="stock-amount">Ativo</label>
+							<input
+								type="number"
+								name="stock_amount_update"
+								class="form-control"
+								id="stock-amount"
+								{% comment %} required {% endcomment %}
+							/>
+						</div>
+						<div class="col-6 mt-3">
+							<label for="buy-price">Preço por ação</label>
+							<input
+								type="number"
+								step="0.001"
+								name="buy_price_update"
+								class="form-control"
+								id="buy-price"
+								required
+							/   >
+						</div>
+						<div class="col-6 mt-3 d-flex justify-content-center">
+							<button type="submit" class="btn btn-dark">ADICIONAR</button>
+						</div>
+					</div>
+				</form>
+			</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat"
+      >Fechar</a
+    >
+  </div>
+</div> -->
+<!-- End Modal Structure -->
+
+<!-- CREATE ITEM Modal Structure --> 
+<div id="modalCreate" class="modal fade">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+				<h4 class="modal-title" id="transaction-title">Criar transação</h4>
+			</div>
+			<div class="modal-body">
+				<form id="createTransaction" enctype="multipart/form-data" method="post" autocomplete="false">
+        {% csrf_token %}
+					<div class="d-flex flex-column align-items-center">
+					{% comment %}  {% endcomment %}
+            <div class="col-8">
+              <div class="md-form">
+                <label for="date">Data</label>
+                <input
+                  type="date"
+                  name="transaction-date"
+                  class="form-control"
+                  id="transaction-date"
+                  required
+                />
+              </div>
+						</div>
+            <div class="col-8">
+              <div class="">
+                
+                <select required name="transaction-broker" id="select1" class="md-form mdb-select col-12">
+                  <option value='' disabled selected>Selecione a corretora</option>
+                  <option value="Agora - Caco" >Agora - Caco</option>
+                  <option value='Agora - Ricardo'>Agora - Ricardo</option>
+                  <option value='BB - Ricardo'>BB - Ricardo</option>
+                  <option value='BB - Itala'>BB - Itala</option>
+                </select>
+              </div>
+						</div>
+            <div class="col-8">
+              <div class="">
+                <select required name="transaction-operation" id="select2" class="md-form mdb-select col-12">
+                  <option value='' disabled selected>Selecione a operação</option>
+                  <option value='Compra'>Compra</option>
+                  <option value='Venda'>Venda</option>
+                </select>
+              </div>
+						</div>
+            <div class="col-8">
+              <div class="md-form">
+                <input type="text" name="transaction-stock" id="transaction-stock"  class="form-control">
+                <label for="transaction-stock">Ativo</label>
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="transaction-file" name='transaction-file'>
+                <label class="custom-file-label" for="transaction-file">Nota de Corretagem</label>
+              </div>
+            </div>
+						<div class="md-form l-6 mt-3 d-flex justify-content-center">
+							<button type="submit" class="btn btn-dark">ADICIONAR</button>
+						</div>
+					</div>
+				</form>
+			</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat"
+      >Fechar</a
+    >
+  </div>
+</div>
+<!-- End Modal Structure -->
+
+
+
+<!-- End Add Wallet Item Form -->
+{% if messages %} {% for message in messages %} {% if message.tags %}
+<script>
+  alert("{{ message }}");
+</script>
+{% endif %} {% endfor %} {% endif %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+  const create_url = "{% url 'transactionspage' %}";
+  const update_url = "{% url 'updatewalletpage' %}";
+  const delete_url = "{% url 'deletewalletpage' %}";
+</script>
+<script
+  src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+  integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+  crossorigin="anonymous"
+></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.0/js/mdb.min.js"></script>
+<script src="{% static '/js/transactions.js' %}"></script>
+{% endblock content%}
