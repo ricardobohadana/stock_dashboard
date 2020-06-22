@@ -1,0 +1,33 @@
+{% extends './summary.html' %}
+{% load static %}
+{% block content %}
+<link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static '/css/sum_stocks.css' %}"
+/>
+<div class="container my-5">
+  <section>
+    <div class='row pt-5' id="stocks-info-row">
+      <div class='col-12 mt-5' id="loading">
+        <div class='col-12' >
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+const sum_stocks_url = "{% url 'summarystockspage' id=id %}"
+</script>
+<script src="{% static '/js/sum_stocks.js' %}"></script>
+
+{% endblock content %}
+

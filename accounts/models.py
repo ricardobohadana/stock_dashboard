@@ -10,6 +10,8 @@ class Stock(models.Model):
     updated = models.DateTimeField(auto_now_add=True)
     change_percent = models.FloatField(default=0.0)
     favorite = models.BooleanField(default=False);
+    is_fund = models.BooleanField(default=False)
+    is_etf = models.BooleanField(default=False)
 
     def __str__(self):
         return self.symbol
@@ -20,7 +22,6 @@ class Wallet(models.Model):
         ('Ricardo', 'Ricardo'),
         ('Itala', 'Itala'),
         ('Thayssa', 'Thayssa'),
-        ('Itala-Caco','Itala-Caco'),
     ]
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
     investment = models.FloatField()
@@ -44,9 +45,9 @@ class Transaction(models.Model):
     ]
     options_broker = [
         ('Agora - Caco','Agora - Caco'),
-        ('Agora - Ricardo', 'Agora - Ricardo'),
         ('BB - Ricardo', 'BB - Ricardo'),
         ('BB - Itala', 'BB - Itala'),
+        ('BB - Thayssa', 'BB - Thayssa'),
     ]
     stock = models.CharField(max_length=50)
     operation = models.CharField(max_length=25, choices=options_operation)
@@ -55,4 +56,4 @@ class Transaction(models.Model):
     broker = models.CharField(max_length=25, choices=options_broker)
 
     def __str__(self):
-        return (self.id + ' - ' + self.operation + ' ' + self.stock)
+        return (str(self.id) + ' - ' + str(self.operation) + ' ' + str(self.stock))

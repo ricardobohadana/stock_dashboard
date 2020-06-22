@@ -9,6 +9,215 @@ from django.contrib import messages
 from .utilities import *
 import simplejson as json
 
+
+class StocksSummary(View):
+    template_name = "accounts/sum_stocks.html"
+
+    def get(self, request, id, *args, **kwargs):
+        id_disclosure = [
+            'Caco',
+            'Ricardo',
+            'Itala',
+            'Thayssa',
+        ]
+        if request.is_ajax():
+            updated_stocks = []
+            stocks = [item.stock for item in Wallet.objects.filter(owner=id_disclosure[int(id)-1])]
+            for stock in stocks:
+                db_obj = Stock.objects.get(pk=stock.pk)
+                obj = get_Stock_Data(stock.symbol)
+                if obj == 1:
+                    return HttpResponse('error')
+                db_obj.price = obj['price']
+                db_obj.change_percent = obj['change_percent']
+                db_obj.updated = timezone.now()
+                db_obj.save()
+                updated_stocks.append({
+                    'symbol': stock.symbol,
+                    'price': db_obj.price,
+                    'change_percent': db_obj.change_percent,
+                    'is_etf': db_obj.is_etf,
+                    'is_fund': db_obj.is_fund,
+                })
+            return JsonResponse(updated_stocks, safe=False)
+
+        context = {
+            # 'stocks': stocks,
+            'id': id,
+
+        }
+
+        return render(request, self.template_name, context)
+
+class TransactionSummary(View):
+    template_name = 'accounts/sum_trans.html'
+
+    def create_transaction(self, data):
+        try:
+            pass
+            instance = Transaction.objects.create(
+                stock = data[0],
+                operation = data[1],
+                document = data[2],
+                date = data[3],
+                broker = data[4],
+                )
+            instance.save()
+            return True
+        except:
+            return False
+
+    def post(self, request, *args, **kwargs):
+        # procura pelo nome
+        date = request.POST.get('transaction-date', None)
+        broker = request.POST.get('transaction-broker', None)
+        stock = str(request.POST.get('transaction-stock', None)).upper()
+        document = request.FILES['transaction-file']
+        operation = request.POST.get('transaction-operation', None)
+        obj = [stock, operation, document, date, broker]
+        print(obj)
+        if (date and stock and document and operation):
+            done = self.create_transaction(obj)
+            if done:
+                return redirect('summarytransactionspage')
+            else:
+                return HttpResponse('/error/')
+        else:
+            return HttpResponse('/error/')
+
+
+    def get(self, request, id, *args, **kwargs):
+        if request.is_ajax():
+            if request.GET.get('action', None) == 'delete':
+                    pk = request.GET.get('pk', None)
+                    Transaction.objects.get(pk=pk).delete()
+                    return JsonResponse({'deleted': True})
+        broker = [
+            'Agora - Caco',
+            'BB - Ricardo',
+            'BB - Itala',
+            'BB - Thayssa',
+        ]
+        transactions = Transaction.objects.filter(broker=broker[int(id)-1]).order_by('-date')
+        context ={
+            'id': int(id),
+            'transactions': transactions
+        }
+
+        return render(request, self.template_name, context)
+
+
+class InvestmentSummary(View):
+    template_name = 'accounts/summary.html'
+    id_disclosure = [
+         'Caco',
+         'Ricardo',
+         'Itala',
+         'Thayssa',
+    ]
+    def get_data(self, id):
+        owner = self.id_disclosure[int(id)-1]
+        return Wallet.objects.filter(owner=owner)
+        
+
+    def get(self, request, id, *args, **kwargs):
+        obj = get_ibovespaData()
+        nasdaq = get_internationalData('^IXIC')
+        sp500 = get_internationalData('^GSPC')
+        dji = get_internationalData('^DJI')
+
+
+
+        wallet = self.get_data(id)
+        amount_all = sum([item.money_amount for item in wallet])
+        investment_all = sum([item.investment for item in wallet])
+        # stock_amount_all = sum([item.stock_amount for item in wallet])
+
+        stocks_all = [[round(((item.stock.price/item.buy_price)-1)*100, 2), item.stock.symbol, item.money_amount, round(item.money_amount-item.investment, 2), item.stock.pk] for item in wallet]
+        best_stock = max(stocks_all)
+        worst_stock = min(stocks_all)
+
+        # stock_amount_etf = sum([item.stock_amount for item in wallet if item.stock.is_etf])
+        amount_etf = sum([item.money_amount for item in wallet if item.stock.is_etf])
+        # investment_etf = sum([item.investment for item in wallet if item.stock.is_etf])
+        
+        # stock_amount_fund = sum([item.stock_amount for item in wallet if item.stock.is_fund])
+        amount_fund = sum([item.money_amount for item in wallet if item.stock.is_fund])
+        # investment_fund = sum([item.investment for item in wallet if item.stock.is_fund])
+        
+        # stock_amount_stock = sum([item.stock_amount for item in wallet if not item.stock.is_etf and not item.stock.is_fund])
+        amount_stock = sum([item.money_amount for item in wallet if not item.stock.is_etf and not item.stock.is_fund])
+        investment_stock = sum([item.investment for item in wallet if not item.stock.is_etf and not item.stock.is_fund])
+        
+        performance = round(sum([(item.stock.change_percent*item.stock.price*item.stock_amount/100) for item in wallet]),2)
+        performance_change_percent = round(((performance/investment_all))*100,2)
+        performance_change_percent_class = 'success' if performance_change_percent > 0 else 'danger'
+        performance_change_percent_color = 'green' if performance_change_percent > 0 else 'red'
+
+
+         
+        try:
+            change_percent_all = round(((amount_all/investment_all)-1)*100, 2)
+        except ZeroDivisionError:
+            change_percent_all = 0
+        # try:
+        #     change_percent_etf = round(((amount_etf/investment_etf)-1)*100, 2)
+        # except ZeroDivisionError:
+        #     change_percent_etf = 0
+        # try:
+        #     change_percent_fund = round(((amount_fund/investment_fund)-1)*100, 2)
+        # except ZeroDivisionError:
+        #     change_percent_fund = 0
+        try:
+            change_percent_stock = round(((amount_stock/investment_stock)-1)*100, 2)
+        except ZeroDivisionError:
+            change_percent_stock = 0
+
+            
+        if change_percent_all > 0:
+            change_percent_all_class = 'success'
+            change_percent_all_color = 'green'
+        else:
+            change_percent_all_class = 'danger'
+            change_percent_all_color = 'red'
+            
+        # print(request.GET)
+        context = {
+            "id": int(id),
+            'ibovespa': obj,
+            'nasdaq': nasdaq,
+            'sp500': sp500,
+            'dji': dji,
+            'stocks_all': stocks_all,
+            'best_stock': best_stock,
+            'worst_stock': worst_stock,
+            'amount_all':amount_all,
+            # 'stock_amount_all':stock_amount_all,
+            # 'investment_all':investment_all,
+            'change_percent_all':change_percent_all,
+            'change_percent_all_color':change_percent_all_color,
+            'change_percent_all_class':change_percent_all_class,
+            # 'stock_amount_fund':stock_amount_fund,
+            'amount_fund':amount_fund,
+            # 'investment_fund':investment_fund,
+            # 'change_percent_fund':change_percent_fund,
+            # 'stock_amount_etf':stock_amount_etf,
+            'amount_etf':amount_etf,
+            # 'investment_etf':investment_etf,
+            # 'change_percent_etf':change_percent_etf,
+            # 'stock_amount_stock':stock_amount_stock,
+            'amount_stock':amount_stock,
+            # 'investment_stock':investment_stock,
+            # 'change_percent_stock':change_percent_stock,
+            'performance': performance,
+            'performance_change_percent': performance_change_percent,
+            'performance_change_percent_class': performance_change_percent_class,
+            'performance_change_percent_color': performance_change_percent_color,
+        }
+
+        return render(request, self.template_name, context)
+
+
 class transactionView(View):
     model = Transaction
     template_name = 'accounts/transaction.html'
@@ -53,7 +262,7 @@ class transactionView(View):
                     pk = request.GET.get('pk', None)
                     Transaction.objects.get(pk=pk).delete()
                     return JsonResponse({'deleted': True})
-        transactions = Transaction.objects.all()
+        transactions = Transaction.objects.all().order_by('-date')
         context ={
             'transactions': transactions
         }
@@ -75,8 +284,6 @@ class bvspView(View):
             'ibov': ibov
         }
         return render(request, self.template_name, context)
-
-
 
 
 class queryView(View):
@@ -163,10 +370,10 @@ class createWalletView(View):
     def get(self, request, *args, **kwargs):
         stock = Stock.objects.get(pk=request.GET.get('stock', None))
         stock_amount = int(request.GET.get('stock_amount', None))
-        buy_price = float(request.GET.get('buy_price', None))
+        investment = float(request.GET.get('investment', None))
         owner = str(request.GET.get('owner', None))
         money_amount = stock.price * stock_amount
-        investment = float(buy_price * stock_amount)
+        buy_price = float(investment / stock_amount)
 
         obj = Wallet.objects.create(
             stock=stock,
@@ -319,6 +526,7 @@ class newhomeView(View):
             'obj': obj,
         }
         return render(request, self.template_name, context)
+
 
 def newstockView(request):
     stocks = Stock.objects.all()

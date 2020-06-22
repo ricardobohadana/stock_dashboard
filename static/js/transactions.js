@@ -5,21 +5,6 @@ document.getElementById("dashboard").classList.remove("active");
 // Material Select Initialization
 // $(document).ready(function () {});
 
-function editWallet(symbol) {
-  if (symbol) {
-    if (!isEmpty($("#transaction-title"))) {
-      $("#transaction-title").contents().remove();
-    }
-    symbol.toString();
-    $("#transaction-title").append(` ${symbol}`);
-  }
-}
-
-// Check if a html tag is empty
-function isEmpty(el) {
-  return !$.trim(el.html());
-}
-
 // Delete wallet item
 function deleteTransaction(id) {
   var action = confirm(

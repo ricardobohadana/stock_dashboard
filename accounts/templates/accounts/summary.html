@@ -1,0 +1,507 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.0/css/mdb.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static '/css/summary.css' %}"
+    />
+    <title>Carteira - RM</title>
+  </head>
+  <header>
+    <!-- Sidebar -->
+    <div class="sidebar-fixed position-fixed">
+      <div class="float-right close-icon">
+        <i class="fa fa-times"></i>
+      </div>
+      <div class="logo-wrapper">
+        <h1>RM</h1>
+        <h6>Investimentos</h6>
+      </div>
+
+      <div class="list-group list-group-flush">
+        <a href="{% url 'summarypage' id=id %}" id="dashboard" class="list-group-item list-group-item-action active waves-effect">
+          <i class="fa fa-pie-chart mr-3"></i>Dashboard
+        </a>
+        <a href="{% url 'summarystockspage' id=id %}" id="stocks-summary" class="list-group-item list-group-item-action waves-effect">
+          <i class="fa fa-table mr-3"></i>Suas ações</a
+        >
+        <a href="{% url 'summarytransactionspage' id=id %}" id="transactions" class="list-group-item list-group-item-action waves-effect">
+          <i class="fa fa-folder mr-3"></i>Suas Ordens</a
+        >
+        <a
+          href="#"
+          data-toggle="modal"
+          data-target="#selectWalletDashboard"
+          class="list-group-item list-group-item-action waves-effect mt-5"
+        >
+          <i class="fa fa-map mr-3"></i>Selecionar Carteira</a
+        >
+        <a href="{% url 'homepage' %}" class="list-group-item list-group-item-action waves-effect">
+          <i class="fa fa-home mr-3"></i>Voltar ao Início</a
+        >
+        <a href="{% url 'walletpage' %}" id="wallet" class="list-group-item list-group-item-action waves-effect">
+          <i class="fa fa-wallet mr-3"></i>Carteira</a
+        >
+      </div>
+    </div>
+    <!-- Sidebar -->
+  </header>
+  <body class='ml-270'>
+    <nav class="navbar ml-270 mb-5 fixed-top navbar-dark bg-dark">
+      <i class="fas fa-bars p-2 ml-3" href="#"></i>
+    </nav>
+  {% block content %}
+    <!--INICIO DO CÓDIGO DO ADMIN DASHBOARD-->
+    <div class="container-for-admin">
+      <!--Main Navigation-->
+      <!--Main Navigation-->
+
+      <!--Main layout-->
+      <main class="pt-5 ml-270">
+        <div class="container-fluid mt-5 fadeIn">
+          <!-- Heading -->
+          <div class="row">
+            <div class="col-xl-3 col-lg-6 mb-4">
+              <div class="media white z-depth-1 rounded">
+                <i
+                  id="left-icon"
+                  class="fas fa-hand-holding-usd fa-lg {{change_percent_all_color}} z-depth-1 p-4 rounded-left text-white mr-3"
+                ></i>
+                <div class="media-body p-1">
+                  <p class="text-uppercase text-muted mb-1">
+                    <small>PATRIMÔNIO ATUALIZADO</small>
+                  </p>
+                  <p class="font-weight-bold mb-0">
+                    R$ {{amount_all|intcomma}}
+                    <span class="badge badge-{{change_percent_all_class}} badge-pill pull-right">{{change_percent_all}} %
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 mb-4">
+              <div class="media white z-depth-1 rounded">
+                <i
+                  id="left-icon"
+                  class="fas fa-percent fa-lg {{performance_change_percent_color}} z-depth-1 p-4 rounded-left text-white mr-3"
+                ></i>
+                <div class="media-body p-1">
+                  <p class="text-uppercase text-muted mb-1">
+                    <small>HOJE</small>
+                  </p>
+                  <p class="font-weight-bold mb-0">
+                    R$ {{performance|intcomma}}
+                    <span class="badge badge-{{performance_change_percent_class}} badge-pill pull-right">{{performance_change_percent}} %
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 mb-4">
+              <div class="media white z-depth-1 rounded">
+                <i
+                  id="left-icon"
+                  class="fas fa-grin-stars fa-2x {% if best_stock.0 > 0 %}green{% else %}red{% endif %} z-depth-1 p-3 rounded-left text-white mr-3"
+                ></i>
+                <div class="media-body p-1">
+                  <p class="text-uppercase text-muted mb-1">
+                    <small>MELHOR COMPRA: </small><strong>{{best_stock.1}}</strong>
+                  </p>
+                  <p class="font-weight-bold mb-0">
+                    R$ {{best_stock.3|intcomma}}
+                    <span class="badge badge-{% if best_stock.0 > 0 %}success{% else %}danger{% endif %} badge-pill pull-right">{{best_stock.0}} %
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 mb-4">
+              <div class="media white z-depth-1 rounded">
+                <i
+                  id="left-icon"
+                  class="fas fa-angry fa-2x {% if worst_stock.0 > 0 %}green{% else %}red{% endif %} z-depth-1 p-3 rounded-left text-white mr-3"
+                ></i>
+                <div class="media-body p-1">
+                  <p class="text-uppercase text-muted mb-1">
+                    <small>PIOR COMPRA: </small><strong>{{worst_stock.1}}</strong>
+                  </p>
+                  <p class="font-weight-bold mb-0">
+                    R$ {{worst_stock.3|intcomma}}
+                    <span class="badge badge-{% if worst_stock.0 > 0 %}success{% else %}danger{% endif %} badge-pill pull-right">{{worst_stock.0}} %
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Heading -->
+
+          <!--Grid row-->
+          <div class="row wow fadeIn">
+            <!--Grid column-->
+            <div class="col-xl-8 col-lg-12 mb-4">
+              <!--Card-->
+              <div class="card">
+              <!--Card Header-->
+                <div class="card-header text-center">
+                  <h3>Composição da Carteira</h3>
+                </div>
+              <!--/Card Header-->
+                <!--Card content-->
+                <div class="card-body">
+                   <div id="donut-chart"></div>
+                <!--/Card content-->
+                </div>
+                <a data-toggle="modal"
+                  data-target="#stocks-info"
+                  class="card-footer footer-hover small text-center elegant-color-dark-text border-0 p-2"
+                >
+                  Detalhes
+                  <i class="fas fa-arrow-circle-right pl-2"></i>
+                </a>
+              </div>
+              <!--/.Card-->
+            </div>
+            <!--Grid column-->
+
+            <!--Grid column-->
+            <div class="col-xl-4 col-lg-6 mb-4">
+              <!--Card-->
+              <div class="card mb-4">
+                <!-- Card header -->
+                <div class="card-header text-center">
+                  Diversificação da carteira
+                </div>
+
+                <!--Card content-->
+                <div class="card-body">
+                  <div id="donut-chart-divisao">
+                  </div>
+                  <div>
+                </div>
+              </div>
+              <!--/.Card-->
+            </div>
+            <!--Grid column-->
+
+              <!-- Admin card -->
+            <div class="card mt-3">
+
+              <div class="">
+                <span class="warning-color z-depth-2 px-4 py-2 ml-3 mt-n3 rounded text-white">IBOVESPA</span>
+                <div class="float-right text-right p-3">
+                  <p class="text-uppercase text-muted mb-1"><small>PREÇO</small></p>
+                  <h4 class="font-weight-bold mb-0">R$ {{ibovespa.price|intcomma}}<span class=" ml-3 badge-pill badge badge-{% if ibovespa.change_percent > 0 %}success{% else %}danger{% endif %}">{{ibovespa.change_percent}} %</span></h4>
+                </div>
+              </div>
+
+              <div class="card-body pt-0">
+                <div class="progress md-progress">
+                  <div class="progress-bar bg-{% if ibovespa.change_percent > 0 %}success{% else %}danger{% endif %}" role="progressbar" style="width: 100%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+            </div>
+              <!-- Admin card -->
+          </div>
+          <!--Grid row-->
+          <div class="col-lg-4 col-md-12 mb-4">
+
+            <!-- Admin card -->
+            <div class="card mt-1">
+
+              <div class="">
+                <span class="elegant-color z-depth-2 px-4 py-2 ml-3 mt-n3 rounded text-white">NASDAQ</span>
+                <div class="float-right text-right p-3">
+                  <p class="text-uppercase text-muted mb-1"><small>PREÇO</small></p>
+                  <h4 class="font-weight-bold mb-0">US$ {{nasdaq.price|intcomma}}<span class=" ml-3 badge-pill badge badge-{% if nasdaq.change_percent > 0 %}success{% else %}danger{% endif %}">{{nasdaq.change_percent}} %</span></h4>
+                </div>
+              </div>
+
+              <div class="card-body pt-0">
+                <div class="progress md-progress">
+                  <div class="progress-bar bg-{% if nasdaq.change_percent > 0 %}success{% else %}danger{% endif %}" role="progressbar" style="width: 100%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+            </div>
+            <!-- Admin card -->
+
+          </div>
+          <div class="col-lg-4 col-md-12 mb-4">
+
+        <!-- Admin card -->
+            <div class="card mt-1">
+
+              <div class="">
+                <span class="default-color z-depth-2 px-4 py-2 ml-3 mt-n3 rounded text-white">DOW JONES</span>
+                <div class="float-right text-right p-3">
+                  <p class="text-uppercase text-muted mb-1"><small>PREÇO</small></p>
+                  <h4 class="font-weight-bold mb-0">US$ {{dji.price|intcomma}}<span class=" ml-3 badge-pill badge badge-{% if dji.change_percent > 0 %}success{% else %}danger{% endif %}">{{dji.change_percent}} %</span></h4>
+                </div>
+              </div>
+
+              <div class="card-body pt-0">
+                <div class="progress md-progress">
+                  <div class="progress-bar bg-{% if dji.change_percent > 0 %}success{% else %}danger{% endif %}" role="progressbar" style="width: 100%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+            </div>
+            <!-- Admin card -->
+
+          </div>
+          <div class="col-lg-4 col-md-12 mb-4">
+
+        <!-- Admin card -->
+            <div class="card mt-1">
+
+              <div class="">
+                <span class="secondary-color z-depth-2 px-4 py-2 ml-3 mt-n3 rounded text-white">S&P 500</span>
+                <div class="float-right text-right p-3">
+                  <p class="text-uppercase text-muted mb-1"><small>PREÇO</small></p>
+                  <h4 class="font-weight-bold mb-0">US$ {{sp500.price|intcomma}}<span class=" ml-3 badge-pill badge badge-{% if sp500.change_percent > 0 %}success{% else %}danger{% endif %}">{{sp500.change_percent}} %</span></h4>
+                </div>
+              </div>
+
+              <div class="card-body pt-0">
+                <div class="progress md-progress">
+                  <div class="progress-bar bg-{% if sp500.change_percent > 0 %}success{% else %}danger{% endif %}" role="progressbar" style="width: 100%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+            </div>
+            <!-- Admin card -->
+
+          </div>
+            
+
+          <!--Modal: Login / Register Form Demo-->
+          
+
+      <!-- Stock Info Modal -->
+          <div
+            class="modal fade"
+            id="stocks-info"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="myModalLabel"
+            aria-hidden="true"
+          >
+            <div
+              class="modal-dialog modal-lg modal-info"
+              role="document"
+            >
+              <!--Content-->
+              <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header elegant-color-dark">
+                  <p class="heading lead white-text">Informações detalhadas</p>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+                  <div class="text-center">
+                    <div class="list-group list-group-flush">
+                      <h5>
+                        <strong
+                          class="d-flex justify-content-around px-4"
+                          >
+                          <span class="badge badge-default badge-pill pull-right p-2">
+                          Ativo
+                          </span>
+                          <span class="badge badge-default badge-pill pull-right p-2">
+                            Capital Atual
+                          </span>
+                          <span class="badge badge-default badge-pill pull-right p-2">
+                            Lucro (R$)
+                          </span>
+                          <span class="badge badge-default badge-pill pull-right p-2">
+                          Lucro (%)
+                          </span>
+                        </strong>
+                      </h5>
+                    {% for stock in stocks_all %}
+                      <a
+                        href="{% url 'detailedstockpage' pk=stock.4 %}"
+                        class="d-flex justify-content-around list-group-item list-group-item-action waves-effect">
+                        <span>
+                          {{stock.1}}
+                        </span>
+                        <span>
+                          R$ {{stock.2|intcomma}}
+                        </span>
+                        <span>
+                          R$ {{stock.3|intcomma}}
+                        </span>
+                        <span class="badge badge-{% if stock.0 > 0 %}success{% else %}danger{% endif %} badge-pill pull-right"
+                          >{{stock.0}} %
+                          <i class="fa fa-arrow-{% if stock.0 > 0 %}up{% else %}down{% endif %} ml-1"></i>
+                        </span>
+                      </a>
+                    {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                <!--Footer-->
+                <div class="modal-footer">
+                  <a
+                    role="button"
+                    class="btn btn-default waves-effect"
+                    data-dismiss="modal"
+                    >Fechar</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  {% endblock content %}
+    <div
+      class="modal fade"
+      id="selectWalletDashboard"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="myModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">
+              Selecione a carteira que deseja ver
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          <h4>Visualizar a carteira de:</h4>
+          
+
+            <div class="list-group list-group-flush">
+              <h5>
+                <strong
+                  class="d-flex justify-content-around px-4"
+                  >
+                  <span class="badge badge-info badge-pill pull-right">
+                  Proprietário
+                  </span>
+                  <span class="badge badge-info badge-pill pull-right">
+                    Corretora
+                  </span>
+                </strong>
+              </h5>
+              <a
+                href="{% url 'summarypage' id=1 %}"
+                class="d-flex justify-content-around list-group-item list-group-item-action waves-effect">
+                <span>
+                  Caco
+                </span>
+                <span class="badge badge-default">
+                  Ágora - Bradesco
+                </span>
+              </a>
+              <a
+                href="{% url 'summarypage' id=2 %}"
+                class="d-flex justify-content-around list-group-item list-group-item-action waves-effect">
+                <span>
+                  Ricardo
+                </span>
+                <span class="badge badge-warning">
+                  Banco do Brasil - Itala
+                </span>
+              </a>
+              <a
+                href="{% url 'summarypage' id=3 %}"
+                class="d-flex justify-content-around list-group-item list-group-item-action waves-effect">
+                <span>
+                  Itala
+                </span>
+                <span class="badge badge-warning">
+                  Banco do Brasil - Itala
+                </span>
+              </a>
+              <a
+                href="{% url 'summarypage' id=4 %}"
+                class="d-flex justify-content-around list-group-item list-group-item-action waves-effect">
+                <span>
+                  Thayssa
+                </span>
+                <span class="badge badge-warning">
+                  Banco do Brasil - Thayssa
+                </span>
+              </a>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"
+  ></script>
+  {{stocks_all|json_script:"stocks_all"}}
+  {{amount_etf|json_script:"amount_etf"}}
+  {{amount_stock|json_script:"amount_stock"}}
+  {{amount_fund|json_script:"amount_fund"}}
+  <script src="{% static '/js/summary.js' %}"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+    integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://kit.fontawesome.com/034b561e46.js"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.0/js/mdb.min.js"
+  ></script>
+
+</html>

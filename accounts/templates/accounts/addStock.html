@@ -11,15 +11,23 @@
           {% csrf_token %}
           
           <div class="form-group d-flex flex-column align-items-center">
-            <label for="id_symbol">Abreviação</label>
-            {{ form.symbol }}
-            <small id="abbr-help" class="form-text text-muted">Digite a abreviação da sua ação aqui e clique em
-              adicionar para vê-la em seu portfólio</small>
-              <button
-              type="submit"
-              value=""
-              class="btn btn-primary d-flex"
-              >
+            <div class='mb-2 d-flex flex-column align-items-center'>
+              <label for="id_symbol">Abreviação</label>
+              {{ form.symbol }}
+              <small id="abbr-help" class="form-text text-muted">Digite a abreviação da sua ação aqui e clique em
+                adicionar para vê-la em seu portfólio</small>
+            </div>
+            <div class="custom-control custom-checkbox">
+              <label for="id_is_fund">Este ativo é um FII?</label> {{ form.is_fund }}
+            </div>
+            <div class="custom-control custom-checkbox">
+              <label for="id_is_etf">Este ativo é um ETF?</label> {{ form.is_etf }}
+            </div>
+            <button
+            type="submit"
+            value=""
+            class="btn btn-primary d-flex"
+            >
               Adicionar<i class="fas fa-submit"></i>
             </button>
           </div>    

@@ -12,6 +12,22 @@ import time
 pd.options.mode.chained_assignment = None
 
 
+def get_internationalData(symbol: str):
+    
+    df = web.DataReader(symbol, data_source='yahoo')
+    price_today =  round(df.Close.values[-1], 2)
+    price_yesterday = round(df.Close.values[-2], 2)
+    variance = round((((price_today/price_yesterday)-1)*100), 2)
+
+    jsobj = {
+        'price': price_today,   
+        'change_percent': variance,
+        'symbol': symbol,
+        }
+
+    return jsobj
+
+
 def get_Stock_Data_old(symbol):
     url = 'https://finance.yahoo.com/quote/'+ symbol +'.SA?p='+ symbol +'.SA&.tsrc=fin-srch'
     r = requests.get(url)

@@ -6,13 +6,16 @@ class StockForm(ModelForm):
     class Meta:
         model = Stock
         fields = [
-            'symbol'
+            'symbol',
+            'is_fund',
+            'is_etf',
         ]
 
         exclude = [
-            'name',
             'price',
             'updated'
+            'change_percent',
+            'favorite',
         ]
 
 class WalletForm(ModelForm):

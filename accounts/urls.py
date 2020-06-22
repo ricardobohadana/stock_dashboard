@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -17,4 +18,7 @@ urlpatterns = [
     path('wallet/create', views.createWalletView.as_view(), name='createwalletpage'),
     path('wallet/update', views.updateWalletView.as_view(), name='updatewalletpage'),
     path('wallet/delete', views.deleteWalletView.as_view(), name='deletewalletpage'),
-]
+    path('wallet/summary/<str:id>', views.InvestmentSummary.as_view(), name='summarypage'),
+    path('wallet/summary/<str:id>/transactions', views.TransactionSummary.as_view(), name='summarytransactionspage'),
+    path('wallet/summary/<str:id>/stocks', views.StocksSummary.as_view(), name='summarystockspage'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

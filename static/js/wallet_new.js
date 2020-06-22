@@ -151,16 +151,16 @@ function createrowTotal(owner) {
 $("form#createWallet").submit((e) => {
   e.preventDefault();
   var stockInput = $('select[name="stockObject"]').val().trim();
-  var buyPriceInput = $('input[name="buy_price"]').val().trim();
+  var InvestmentInput = $('input[name="investment"]').val().trim();
   var stockAmoutInput = $('input[name="stock_amount"]').val().trim();
   var stockOwner = $('select[name="owner"]').val().trim();
-  if (stockInput && buyPriceInput && stockAmoutInput && stockOwner) {
+  if (stockInput && InvestmentInput && stockAmoutInput && stockOwner) {
     // Create Ajax Call
     $.ajax({
       url: create_url,
       data: {
         stock: stockInput,
-        buy_price: buyPriceInput,
+        investment: InvestmentInput,
         stock_amount: stockAmoutInput,
         owner: stockOwner,
       },

@@ -1,0 +1,177 @@
+{% extends './summary.html' %}
+{% load static %}
+{% block content %}
+<link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static '/css/sum_trans.css' %}"
+/>
+<div class="container my-5">
+  
+  <!-- Section: Block Content -->
+  <section>
+    
+    <div class="row">
+      <div class="col-12 mt-5">
+      	<div class="card card-list">
+          <div class="card-header white d-flex justify-content-between align-items-center py-3">
+            <p class="h5-responsive font-weight-bold mb-0">Last Orders</p>
+            <ul class="list-unstyled d-flex align-items-center mb-0">
+              <li><i class="far fa-window-minimize fa-sm pl-3"></i></li>
+              <li><i class="fas fa-times fa-sm pl-3"></i></li>
+            </ul>
+          </div>
+          <div class="card-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">ID da Transação</th>
+                  <th scope="col">Data</th>
+                  <th scope="col">Ativo(s)</th>
+                  <th scope="col">Operação</th>
+                  <th scope="col">Nota de Corretagem</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% if transactions %}
+              {% for item in transactions %}
+                <tr>
+                  <th scope="row"><a class="text-primary">{{item.pk}}</a></th>
+                  <td>{{item.date}}</td>
+                  <td>{{item.stock}}</td>
+                  <td><span class="badge badge-{% if item.operation == "Compra" %}default{% elif item.operation == "Venda"%}danger{% else %}secondary{% endif %}">{{item.operation}}</span></td>
+                  <td class="transaction-document align-middle text-center"><a href="{{ item.document.url }}" download><i class="fas fa-file-download fa-2x"></i></a></td>
+                </tr>  
+              {% endfor %}
+              {% endif %}
+                {% comment %}               
+                <tr>
+                  <th scope="row"><a class="text-primary">OR1848</a></th>
+                  <td>Samsung Smart TV</td>
+                  <td><span class="badge badge-warning">Pending</span></td>
+                  <td class="pt-2 pb-0"><canvas id="bar1" width="40" height="40"></canvas></td>
+                </tr>
+                <tr>
+                  <th scope="row"><a class="text-primary">OR7429</a></th>
+                  <td>iPhone 6 Plus</td>
+                  <td><span class="badge badge-danger">Delivered</span></td>
+                  <td class="pt-2 pb-0"><canvas id="bar2" width="40" height="40"></canvas></td>
+                </tr>
+                <tr>
+                  <th scope="row"><a class="text-primary">OR7429</a></th>
+                  <td>Samsung Smart TV</td>
+                  <td><span class="badge badge-info">Processing</span></td>
+                  <td class="pt-2 pb-0"><canvas id="bar3" width="40" height="40"></canvas></td>
+                </tr>
+                <tr>
+                  <th scope="row"><a class="text-primary">OR1848</a></th>
+                  <td>Samsung Smart TV</td>
+                  <td><span class="badge badge-warning">Pending</span></td>
+                  <td class="pt-2 pb-0"><canvas id="bar4" width="40" height="40"></canvas></td>
+                </tr>
+                <tr>
+                  <th scope="row"><a class="text-primary">OR7429</a></th>
+                  <td>iPhone 6 Plus</td>
+                  <td><span class="badge badge-danger">Delivered</span></td>
+                  <td class="pt-2 pb-0"><canvas id="bar5" width="40" height="40"></canvas></td>
+                </tr>
+                <tr>
+                  <th scope="row"><a class="text-primary">OR9842</a></th>
+                  <td>Call of Duty IV</td>
+                  <td><span class="badge badge-success">Shipped</span></td>
+                  <td class="pt-2 pb-0"><canvas id="bar6" width="40" height="40"></canvas></td>
+                </tr> {% endcomment %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer white py-3 d-flex justify-content-between">
+            <button data-toggle="modal" data-target="#basicExampleModal" class="btn btn-primary btn-md px-3 my-0 mr-0">Place New Order</button>
+            <button class="btn btn-light btn-md px-3 my-0 ml-0">View All Orders</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <!-- Section: Block Content -->
+  
+  <!-- Modal create transaction -->
+  <div class="modal fade" id="basicExampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Criar transação</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="createTransaction" enctype="multipart/form-data" method="post" autocomplete="false">
+        {% csrf_token %}
+					<div class="d-flex flex-column align-items-center">
+					{% comment %}  {% endcomment %}
+            <div class="col-8">
+              <div class="md-form">
+                <input
+                  type="date"
+                  name="transaction-date"
+                  class="form-control"
+                  id="transaction-date"
+                  required
+                />
+              </div>
+						</div>
+            <div class="col-8">
+              <div class="">
+                
+                <select required name="transaction-broker" id="select1" class="md-form mdb-select col-12">
+                  <option value='' disabled selected>Selecione a corretora</option>
+                  <option {% if id != 1 %}disabled{% endif %} value="Agora - Caco" >Agora - Caco</option>
+                  <option {% if id != 2 %}disabled{% endif %} value='Agora - Ricardo'>Agora - Ricardo</option>
+                  <option {% if id != 3 %}disabled{% endif %} value='BB - Ricardo'>BB - Ricardo</option>
+                  <option {% if id != 4 %}disabled{% endif %} value='BB - Itala'>BB - Itala</option>
+                </select>
+              </div>
+						</div>
+            <div class="col-8">
+              <div class="">
+                <select required name="transaction-operation" id="select2" class="md-form mdb-select col-12">
+                  <option value='' disabled selected>Selecione a operação</option>
+                  <option value='Compra'>Compra</option>
+                  <option value='Venda'>Venda</option>
+                  <option value='Compra e Venda'>Compra e Venda</option>
+                </select>
+              </div>
+						</div>
+            <div class="col-8">
+              <div class="md-form">
+                <input placeholder="Ativo" type="text" name="transaction-stock" id="transaction-stock"  class="form-control">
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="transaction-file" name='transaction-file'>
+                <label class="custom-file-label" for="transaction-file">Nota de Corretagem</label>
+              </div>
+            </div>
+						<div class="md-form l-6 mt-3 d-flex justify-content-center">
+							<button type="submit" class="btn btn-dark">ADICIONAR</button>
+						</div>
+					</div>
+				</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+</div>
+<script src="{% static '/js/sum_trans.js' %}"></script>
+
+{% endblock content %}
+

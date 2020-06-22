@@ -19,7 +19,18 @@
 .navbar-brand {
   letter-spacing: 1.4px;
 }
+.nav-dropdown {
+  color: white !important;
+}
 
+.dropdown-item:hover {
+  color: black !important;
+}
+
+a.dropdown-toggle.nav-dropdown.py-2:after {
+  display: none !important;
+  content: none !important;
+}
 .nav-link::after {
   content: "";
   left: 0px;

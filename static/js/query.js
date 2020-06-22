@@ -223,6 +223,19 @@ var optionsPercent = {
     type: "bar",
     height: 440,
     stacked: true,
+    animations: {
+      enabled: true,
+      easing: "easeinout",
+      speed: 800,
+      animateGradually: {
+        enabled: true,
+        delay: 150,
+      },
+      dynamicAnimation: {
+        enabled: true,
+        speed: 350,
+      },
+    },
   },
   colors: ["#00B746", "#EF403C"],
   plotOptions: {
@@ -294,6 +307,19 @@ var options = {
   ],
   chart: {
     type: "line",
+    animations: {
+      enabled: true,
+      easing: "easeinout",
+      speed: 800,
+      animateGradually: {
+        enabled: true,
+        delay: 150,
+      },
+      dynamicAnimation: {
+        enabled: true,
+        speed: 350,
+      },
+    },
   },
   title: {
     text: "",

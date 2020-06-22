@@ -40,55 +40,33 @@ function appendStocktoCard(stock) {
   );
 
   if (stock.change_percent > 0) {
-    cpClass = "positive-change";
-    iconClass = "fa-arrow-up";
+    cpClass = "badge-success";
   } else {
-    cpClass = "negative-change";
-    iconClass = "fa-arrow-down";
+    cpClass = "badge-danger";
   }
   if (!stock.favorite) {
     var data = `
-    <tr>
-      <td ><a onclick="ajaxFavUpdater(this)"  role="button" data-id="${stock.pk}">
-      <i class="far ${favIcon}" id="favid-${stock.pk}"></i>
-      </a></td>
-      <td>
-      ${stock.symbol}
-      </td>
-      <td>
-        ${price}
-      </td>
-      <td>
-      <span class="${cpClass}"> <i class="fas ${iconClass}"></i> ${stock.change_percent} %</span>
-      </td>
-      <td class="d-flex justify-content-end" style="width: fit-content;">
-      <a class="btn-sm btn-link" href="/detailedstock/${stock.pk}"><i class="fas fa-chart-area"></i></a>
-      <a class="btn-sm btn-link" href="/removestock/${stock.pk}"><i class="fas fa-times"></i></a>
-      </td>
-    </tr>
+    <div class="list-group-item list-group-item-action waves-effect d-flex justify-content-between">
+      <a onclick="mx-1 ajaxFavUpdater(this)"  role="button" data-id="${stock.pk}">
+        <i class="far ${favIcon}" id="favid-${stock.pk}"></i>
+      </a>
+      <a class="mx-1 text-dark" href="/detailedstock/${stock.pk}">${stock.symbol}</a>
+      <span class="mx-1 text-dark">${price}</span>      
+      <span class="mx-1 badge badge-pill ${cpClass}">${stock.change_percent} %</span>
+      
+      <a class="mx-1 btn-sm btn-link" href="/removestock/${stock.pk}"><i class="fas fa-times"></i></a>
+      
+    </div>
     `;
-    $(data)
-      .hide()
-      .appendTo("table.table.favorites > tbody:last-child")
-      .fadeIn("slow");
+    $(data).hide().appendTo(".stock-list").fadeIn("slow");
   } else {
     var data = `
-    <div class="col-lg-3 mb-2">
+    <div class="col-xl-3 col-lg-4 mb-2">
     <div class="card">
       <div class="card-header">
         <div class="d-flex justify-content-between">
           <div class="card-title"><h4>${stock.symbol}</h4></div>
-          <div class="card-title"><h4>${price}</h4></div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <div>
-            <p>Variação</p>
-          </div>
-          <div>
-            <p>
-            <span class="${cpClass}"><i class="fas ${iconClass}"></i> ${stock.change_percent}% </span>(${priceChange})
-            </p>
-          </div>
+          <div class="card-title d-flex"><h4>${price}<span class="badge badge-pill ml-2 ${cpClass}">${stock.change_percent} %</span></h4></div>
         </div>
         <div class="d-flex justify-content-between">
           <div>
@@ -215,6 +193,19 @@ var optionsPie = {
   chart: {
     width: 350,
     type: "pie",
+    animations: {
+      enabled: true,
+      easing: "easeinout",
+      speed: 800,
+      animateGradually: {
+        enabled: true,
+        delay: 150,
+      },
+      dynamicAnimation: {
+        enabled: true,
+        speed: 350,
+      },
+    },
   },
   labels: ["Ativos subindo", "Ativos caindo"],
   colors: ["#00B746", "#EF403C"],
@@ -291,6 +282,19 @@ var optionsPercent = {
     type: "bar",
     height: 440,
     stacked: true,
+    animations: {
+      enabled: true,
+      easing: "easeinout",
+      speed: 800,
+      animateGradually: {
+        enabled: true,
+        delay: 150,
+      },
+      dynamicAnimation: {
+        enabled: true,
+        speed: 350,
+      },
+    },
   },
   colors: ["#00B746", "#EF403C"],
   plotOptions: {

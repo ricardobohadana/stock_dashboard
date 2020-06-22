@@ -42,7 +42,7 @@
             <td class="transaction-broker align-middle text-center">{{item.broker}}</td>
             <td class="transaction-operation align-middle text-center">{{item.operation}}</td>
             <td class="transaction-symbol align-middle text-center">{{item.stock}}</td>
-            <td class="transaction-document align-middle text-center"><a download href="{{item.document.url}}"><i class="fas fa-file-download"></i></a></td>
+            <td class="transaction-document align-middle text-center"><a href="{{ item.document.url }}" download><i class="fas fa-file-download"></i></a></td>
             {% comment %} Modal Trigger {% endcomment %}
             <td>
               <button
@@ -144,9 +144,9 @@
                 <select required name="transaction-broker" id="select1" class="md-form mdb-select col-12">
                   <option value='' disabled selected>Selecione a corretora</option>
                   <option value="Agora - Caco" >Agora - Caco</option>
-                  <option value='Agora - Ricardo'>Agora - Ricardo</option>
                   <option value='BB - Ricardo'>BB - Ricardo</option>
                   <option value='BB - Itala'>BB - Itala</option>
+                  <option value='BB - Thayssa'>BB - Itala</option>
                 </select>
               </div>
 						</div>
@@ -156,6 +156,7 @@
                   <option value='' disabled selected>Selecione a operação</option>
                   <option value='Compra'>Compra</option>
                   <option value='Venda'>Venda</option>
+                  <option value='Compra e Venda'>Compra e Venda</option>
                 </select>
               </div>
 						</div>
@@ -209,3 +210,4 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.0/js/mdb.min.js"></script>
 <script src="{% static '/js/transactions.js' %}"></script>
 {% endblock content%}
+  

@@ -33,11 +33,7 @@
       crossorigin="anonymous"
     ></script>
     <link rel="stylesheet" type="text/css" href="{% static '/css/home.css'%}" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="../../../static/css/home.css"
-    />
+
     <script
       src="https://kit.fontawesome.com/034b561e46.js"
       crossorigin="anonymous"
@@ -68,7 +64,20 @@
           <a href="{% url 'homepage' %}" class="nav-link active" id="dashboard">DASHBOARD</a>
         </li>
         <li class="nav-item">
-          <a href="{% url 'walletpage' %}" class="nav-link" id="wallet">CARTEIRA</a>
+          <div class="btn-group">
+            <a type="button" id="wallet" class="nav-link" href="{% url 'walletpage' %}">CARTEIRA</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-toggle nav-dropdown py-2" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
+              <i class="fas fa-caret-down"></i>
+            </a>
+            <div class="dropdown-menu elegant-color-dark">
+              <a class="dropdown-item text-white" href="{% url 'summarypage' id=1 %}">Ágora - Caco</a>
+              <a class="dropdown-item text-white" href="{% url 'summarypage' id=2 %}">BB - Ricardo</a>
+              <a class="dropdown-item text-white" href="{% url 'summarypage' id=3 %}">BB - Itala</a>
+              <a class="dropdown-item text-white" href="{% url 'summarypage' id=4 %}">BB -Thayssa</a>
+            </div>
+          </div>
         </li>
         <li class="nav-item">
           <a href="{% url 'forexpage' %}" class="nav-link" id="forex">CÂMBIO</a>
